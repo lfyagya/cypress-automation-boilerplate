@@ -1,397 +1,131 @@
-# Cypress Automation Framework - Best Practices Boilerplate
+# Cypress Command-First Automation Boilerplate
 
-## 📌 Overview
-
-This is a comprehensive Cypress automation framework boilerplate that follows industry best practices and provides a solid foundation for QA teams to build scalable, maintainable end-to-end tests. The framework implements the Page Object Model (POM) pattern and includes advanced features like tagging, reporting, CI/CD integration, and comprehensive documentation.
-
-## 🏗 Framework Architecture
-
-### Core Concepts Implemented
-
-- **Page Object Model (POM)**: Clean separation of test logic and page interactions
-- **Custom Commands**: Reusable commands for common actions
-- **Environment Management**: Multi-environment support with dotenv
-- **Test Tagging**: Flexible test filtering with @cypress/grep
-- **Comprehensive Reporting**: Mochawesome HTML reports with screenshots
-- **Code Quality**: ESLint, Prettier, and Husky for consistent code standards
-- **API Testing**: Built-in API command support
-- **Visual Testing**: Ready for visual regression testing
-- **Accessibility Testing**: Axe integration for accessibility checks
-
-### Project Structure
-
-```
-cypress-automation-boilerplate/
-├── cypress/
-│   ├── docs/                 # Framework documentation
-│   │   └── best-practices.md
-│   ├── e2e/                  # End-to-end test files
-│   │   ├── smoke/            # Critical path tests
-│   │   └── end-to-end/       # Comprehensive feature tests
-│   ├── fixtures/             # Test data files
-│   ├── pages/                # Page Object Models
-│   │   ├── common/           # Shared page objects
-│   │   ├── dashboard-page/   # Feature-specific pages
-│   │   └── login-page/
-│   ├── support/              # Custom commands & utilities
-│   │   ├── commands.js       # General custom commands
-│   │   ├── api-commands.js   # API-related commands
-│   │   └── e2e.js           # Global setup
-│   ├── utils/                # Utility functions
-│   │   ├── constants/        # Project constants
-│   │   └── helpers/          # Test helper functions
-│   ├── screenshots/          # Test failure screenshots
-│   └── videos/               # Test execution videos
-├── scripts/                  # Setup and utility scripts
-├── cypress.config.js         # Cypress configuration
-├── package.json              # Dependencies and scripts
-└── README.md
-```
-
-## � Quick Start
-
-### Prerequisites
-
-- **Node.js** v18+
-- **npm** or **yarn**
-- **Git** for version control
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/lfyagya/cypress-automation-boilerplate.git
-   cd cypress-automation-boilerplate
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your application URLs and credentials
-   ```
-
-4. **Run setup script**
-   ```bash
-   npm run setup
-   ```
-
-5. **Start testing**
-   ```bash
-   npm run cypress:open  # Interactive mode
-   npm run cypress:run   # Headless mode
-   ```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Application URLs
-CYPRESS_BASEURL=https://your-app.com
-CYPRESS_API_URL=https://api.your-app.com
-
-# Authentication
-CYPRESS_USERNAME=testuser
-CYPRESS_PASSWORD=testpass
-
-# Test Environment
-CYPRESS_ENVIRONMENT=dev  # dev, staging, prod
-
-# Reporting
-CYPRESS_RECORD_KEY=your-record-key
-```
-
-### Cypress Configuration
-
-The `cypress.config.js` includes:
-
-- **Environment-specific settings**: Different configs for dev/staging/prod
-- **Custom reporters**: Mochawesome for detailed HTML reports
-- **Test isolation**: Clean browser context between tests
-- **Timeouts**: Optimized for different scenarios
-- **Video recording**: Automatic video capture on failures
-- **Screenshots**: Automatic screenshots on test failures
-
-## 🧪 Writing Tests
-
-### Test Structure (AAA Pattern)
-
-```javascript
-describe('User Authentication', { tags: '@smoke @login' }, () => {
-  beforeEach(() => {
-    // Arrange - Set up test conditions
-    cy.login();
-  });
-
-  it('should login successfully', () => {
-    // Act - Perform the action
-    cy.visit('/dashboard');
-
-    // Assert - Verify the outcome
-    cy.url().should('include', '/dashboard');
-    cy.get('[data-cy="welcome-message"]').should('be.visible');
-  });
-});
-```
-
-### Page Object Model Usage
-
-```javascript
-// In your test file
-import DashboardPage from '../../pages/dashboard-page/DashboardPage';
-
-const dashboardPage = new DashboardPage();
-
-it('should display dashboard correctly', () => {
-  cy.login();
-  dashboardPage.verifyDashboardPage();
-  dashboardPage.checkFirstPrice('@products');
-});
-```
-
-### Custom Commands
-
-```javascript
-// Using built-in custom commands
-cy.login('username', 'password');
-cy.typeText('[data-cy="email"]', 'user@example.com');
-cy.clickElement('[data-cy="submit-btn"]');
-cy.waitForLoading('[data-cy="spinner"]');
-```
-
-## 🏷 Test Organization & Tagging
-
-### Tag Structure
-
-- **@smoke**: Critical path tests
-- **@regression**: Full feature tests
-- **@login**: Authentication tests
-- **@dashboard**: Dashboard feature tests
-- **@wip**: Work in progress
-- **@flaky**: Known flaky tests
-
-### Running Tests by Tags
-
-```bash
-# Run smoke tests
-npm run test:smoke
-
-# Run specific feature tests
-npm run test:dashboard
-
-# Run tests with multiple tags
-npx cypress run --env grepTags="@dashboard+@smoke"
-```
-
-## � Reporting
-
-### Mochawesome Reports
-
-- **HTML Reports**: Detailed test execution reports
-- **Screenshots**: Automatic screenshots on failures
-- **Videos**: Test execution videos
-- **Charts**: Visual test metrics
-
-### Viewing Reports
-
-```bash
-# Generate and view HTML report
-npm run report:generate
-npm run report:open
-```
-
-## 🔧 Development Workflow
-
-### Code Quality
-
-```bash
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-# Run both
-npm run quality
-```
-
-### Git Hooks
-
-- **Pre-commit**: Automatic linting and formatting
-- **Pre-push**: Run smoke tests before pushing
-
-## 🚀 CI/CD Integration
-
-### GitHub Actions Example
-
-```yaml
-name: Cypress Tests
-on: [push, pull_request]
-
-jobs:
-  cypress-run:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: cypress-io/github-action@v5
-        with:
-          browser: chrome
-          record: true
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-```
-
-### Parallel Execution
-
-```bash
-# Run tests in parallel
-npm run test:parallel
-
-# Run on multiple browsers
-npm run test:cross-browser
-```
-
-## 📚 Advanced Features
-
-### API Testing
-
-```javascript
-// API command examples
-cy.api('GET', '/api/users').should('have.property', 'status', 200);
-cy.api('POST', '/api/users', { name: 'John' }).its('body').should('have.property', 'id');
-```
-
-### Visual Testing
-
-```javascript
-// Visual regression testing
-cy.eyesOpen('My App');
-cy.eyesCheckWindow('Dashboard Page');
-cy.eyesClose();
-```
-
-### Accessibility Testing
-
-```javascript
-// Accessibility checks
-cy.injectAxe();
-cy.checkA11y();
-```
-
-## 🛠 Utilities & Helpers
-
-### Date/Time Utilities
-
-```javascript
-import { formatDate, addDays } from '../../utils/date-time';
-
-const futureDate = addDays(new Date(), 7);
-cy.get('[data-cy="date-picker"]').type(formatDate(futureDate));
-```
-
-### Test Data Management
-
-```javascript
-// Using fixtures
-cy.fixture('users/valid-user').as('userData');
-cy.get('@userData').then((user) => {
-  cy.login(user.email, user.password);
-});
-```
-
-## 📖 Documentation
-
-### Available Docs
-
-- **[Script Reference](cypress/docs/script-reference.md)**: Complete guide to all npm scripts
-- **[Best Practices Guide](cypress/docs/best-practices.md)**: Comprehensive testing guidelines
-- **[Naming Conventions](cypress/docs/naming-conventions.md)**: Standardized naming patterns for the framework
-- **[Network Debugging Guide](cypress/docs/network-debugging-guide.md)**: Fix cy.wait() timeout errors
-- **[API Reference](cypress/docs/api-reference.md)**: Custom commands documentation
-- **[Setup Guide](cypress/docs/setup-guide.md)**: Detailed setup instructions
-- **[Troubleshooting](cypress/docs/troubleshooting.md)**: Common issues and solutions
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-### Contribution Guidelines
-
-- Follow the established code style
-- Add tests for new features
-- Update documentation as needed
-- Use conventional commit messages
-
-## 📋 Available Scripts
-
-```json
-{
-  "scripts": {
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "test:smoke": "cypress run --env grep=@smoke",
-    "test:regression": "cypress run --env grep=@regression",
-    "test:dashboard": "cypress run --env grep=@dashboard",
-    "test:parallel": "cypress run --parallel --record",
-    "report:generate": "mochawesome-merge cypress/mochaReports/*.json > cypress/mochaReports/report.json && mochawesome-report-generator cypress/mochaReports/report.json",
-    "report:open": "open cypress/mochaReports/mochawesome-report.html",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "quality": "npm run lint && npm run format",
-    "setup": "bash scripts/setup.sh"
-  }
-}
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Tests timing out**: Check network conditions and increase timeouts if needed
-2. **Element not found**: Use `data-cy` attributes for reliable element selection
-3. **Flaky tests**: Implement proper waiting strategies and retry logic
-4. **Environment issues**: Verify `.env` file configuration
-
-### Debug Mode
-
-```bash
-# Run tests in debug mode
-npm run cypress:debug
-
-# Enable verbose logging
-DEBUG=cypress:* npm run cypress:run
-```
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/lfyagya/cypress-automation-boilerplate/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/lfyagya/cypress-automation-boilerplate/discussions)
-- **Documentation**: [Cypress Official Docs](https://docs.cypress.io)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## � Acknowledgments
-
-- [Cypress.io](https://cypress.io) for the amazing testing framework
-- [Cypress Real World App](https://github.com/cypress-io/cypress-realworld-app) for inspiration
-- [Testing Library](https://testing-library.com) for accessibility best practices
+A production-ready, AI-assisted Cypress automation boilerplate based on the **Config → Custom Commands → Tests** architecture. Designed so any QA team can scaffold their own framework in minutes using Copilot prompts, agents, and skills.
 
 ---
 
-**Happy Testing! 🔥**
+## Architecture at a Glance
 
-*Built with ❤️ for QA teams who want to write better, more maintainable tests.*
+```text
+configs/            ← Single source of truth: API endpoints, UI selectors, routes
+    api/            ← API config entries (method, endpoint, alias, expectedStatus)
+    ui/             ← UI selector constants (data-cy, ARIA, text matchers)
+    app/            ← App routes / path constants
+    scenarios/      ← Reusable test scenario data objects
+
+support/
+    core/api/       ← API engine, factory, schema validation (framework internals)
+    commands/
+        common/     ← Framework-wide reusable commands (auth, nav, filter, form…)
+        modules/    ← Module-level command composition
+        dashboards/ ← Dashboard-specific commands (direct spec consumers)
+    commands.js     ← Central import registry
+    e2e.js          ← Cypress support file entry point
+
+tests/              ← Spec files — thin orchestration using cy.* commands only
+    {module}/
+        smoke/
+        e2e/
+
+schemas/            ← JSON schema contracts for API response validation
+fixtures/           ← Static test data
+```
+
+**Non-Negotiable Rules:**
+
+- No new `*.actions.js` files
+- No Page Object wrappers
+- No hardcoded selectors or URLs
+- No `cy.wait(milliseconds)`
+- `cy.ensureAuthenticated()` in `before()`/`beforeEach()` where auth required
+
+---
+
+## Quick Start for New Teams
+
+### 1. Clone & Install
+
+```bash
+git clone <this-repo> my-project-automation
+cd my-project-automation
+npm install
+```
+
+### 2. Configure Environment
+
+```bash
+cp cypress.env.example.json cypress.env.json
+# Fill in: baseUrl, username, password, any auth tokens
+```
+
+### 3. Update Routes
+
+Edit `cypress/configs/app/routes.js` — replace the example modules and paths with your application's actual routes.
+
+### 4. Generate Your First Module with Copilot
+
+Open VS Code with GitHub Copilot. Then use these prompts:
+
+```text
+/scaffold-module   → Full module scaffold (API config + UI config + commands + test)
+/create-api-config → Generate an API config file
+/create-ui-config  → Generate a UI selector config
+/create-command    → Generate a command file
+/create-test       → Generate a test spec
+```
+
+### 5. Run Tests
+
+```bash
+npm run cy:open          # Interactive runner
+npm run cy:run           # Headless
+npm run cy:run:smoke     # Smoke suite only
+```
+
+---
+
+## GitHub Copilot Configuration
+
+This boilerplate ships a complete Copilot setup in `.github/`:
+
+| File Type           | Location                                 | Purpose                           |
+| ------------------- | ---------------------------------------- | --------------------------------- |
+| Global instructions | `.github/copilot-instructions.md`        | Always-on architecture rules      |
+| Framework rules     | `.github/FRAMEWORK_RULES.md`             | Core rule reference               |
+| Agent modes         | `.github/agents/*.agent.md`              | Specialized task agents           |
+| Chat modes          | `.github/chatmodes/*.chatmode.md`        | Interactive modes (QA gate, docs) |
+| Instructions        | `.github/instructions/*.instructions.md` | Auto-inject by file type          |
+| Prompts             | `.github/prompts/*.prompt.md`            | Slash-command prompts             |
+| Skills              | `.github/skills/*/SKILL.md`              | Domain expertise packs            |
+
+### Recommended Copilot Workflow
+
+1. **New feature** → Use `cypress-test-automation` agent
+2. **Before merge** → Use `cypress-reviewer` agent or `/validate-architecture` prompt
+3. **Bug triage** → Use `cypress-bug-hunter` agent
+4. **Perf issues** → Use `cypress-performance-auditor` agent
+5. **Write docs** → Use `documentation-writer` agent
+6. **Full QA gate** → Use `qa` chat mode
+
+---
+
+## Adapting for Your Application
+
+| Step             | What to do                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Auth             | Edit `cypress/support/commands/common/auth.commands.js` for your auth mechanism (Okta, OAuth, basic, session token) |
+| Routes           | Replace `cypress/configs/app/routes.js` with your app's paths                                                       |
+| First API config | Use `/create-api-config` prompt                                                                                     |
+| First UI config  | Use `/create-ui-config` prompt                                                                                      |
+| First module     | Use `/scaffold-module` prompt                                                                                       |
+| CI/CD            | Adapt `cypress.config.js` env loading and `package.json` scripts                                                    |
+
+---
+
+## Documentation
+
+- [docs/framework-standards.md](docs/framework-standards.md) — Architecture rules, folder strategy, naming
+- [docs/api-layer-guide.md](docs/api-layer-guide.md) — API engine, config factory, stubbing patterns
+- [docs/framework-maintenance-guide.md](docs/framework-maintenance-guide.md) — How to add/update modules
+- [docs/support-commands-instructions.md](docs/support-commands-instructions.md) — Command authoring guide
+- [docs/getting-started.md](docs/getting-started.md) — Step-by-step onboarding for new QA engineers

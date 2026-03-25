@@ -1,24 +1,34 @@
-// ***********************************************************
-// This example support/e2e.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
+/**
+ * @fileoverview Cypress support entry point.
+ * Loaded before every spec file — DO NOT put test logic here.
+ *
+ * Responsibilities:
+ *   1. Import custom commands
+ *   2. Register @cypress/grep plugin
+ *   3. Configure global exception handling
+ *   4. Set global beforeEach defaults
+ */
 
-// Import commands.js using ES2015 syntax:
-import './commands';
-import './api-commands';
+import "./commands";
+import "@cypress/grep/src/support";
 
-import 'cypress-mochawesome-reporter/register';
+// ─── Global Exception Handling ───────────────────────────────────────────────
+// Suppress known non-critical app errors from failing tests.
+// Add specific error patterns here only when verified as non-critical.
+Cypress.on("uncaught:exception", (err) => {
+  // Return false to prevent Cypress from failing the test on this exception.
+  // Only suppress if the error is known to be safe to ignore.
+  const suppressedPatterns = [
+    "ResizeObserver loop limit exceeded",
+    "ResizeObserver loop completed",
+  ];
+  return !suppressedPatterns.some((pattern) => err.message.includes(pattern));
+});
 
-// Import and register @cypress/grep
-const registerCypressGrep = require('@cypress/grep');
-registerCypressGrep();
+// ─── Global beforeEach ───────────────────────────────────────────────────────
+// Intercept console.error to surface hidden app errors during test run.
+beforeEach(() => {
+  cy.window().then((win) => {
+    cy.spy(win.console, "error").as("consoleError");
+  });
+});

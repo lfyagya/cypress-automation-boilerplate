@@ -1,61 +1,90 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
+const { defineConfig } = require("cypress");
+const fs = require("node:fs");
+const path = require("node:path");
+const cypressGrepPlugin = require("@cypress/grep/src/plugin");
+const webpackPreprocessor = require("@cypress/webpack-preprocessor");
+const webpackConfig = require("./cypress/webpack.config.js");
 
-const dotenv = require('dotenv');
-dotenv.config(); // Load .env file variables
-const { defineConfig } = require('cypress');
-const fs = require('fs');
-const path = require('path');
+/**
+ * Load environment-specific config from cypress/config/cypress.env.{env}.json
+ * Usage: cypress run --env configFile=qa
+ */
+function loadEnvConfig(configFile) {
+  if (!configFile) return {};
+  const filePath = path.resolve(
+    __dirname,
+    "cypress",
+    "config",
+    `cypress.env.${configFile}.json`,
+  );
+  if (!fs.existsSync(filePath)) {
+    console.warn(`⚠ Environment config not found: ${filePath}`);
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+}
 
 module.exports = defineConfig({
-  env: {
-    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME,
-    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD,
-    grepFilterSpecs: true,
-  },
-  e2e: {
-    watchForFileChanges: false,
-    baseUrl: process.env.CYPRESS_BASEURL,
-    specPattern: getSpecPattern(),
-    setupNodeEvents(on, config) {
-      // Register the mochawesome reporter
-      require('cypress-mochawesome-reporter/plugin')(on);
-      // Register grep plugin for the node process
-      require('@cypress/grep/src/plugin')(config);
-      return config;
-    },
-  },
+  // ── Global Config ──
+  chromeWebSecurity: false,
+  video: false,
+  screenshotOnRunFailure: true,
+  viewportWidth: 1920,
+  viewportHeight: 1080,
+
+  // ── Memory Management ──
+  experimentalMemoryManagement: true,
+  numTestsKeptInMemory: 5,
+
+  // ── Timeouts ──
   defaultCommandTimeout: 10000,
-  pageLoadTimeout: 50000,
-  reporter: 'cypress-mochawesome-reporter',
+  requestTimeout: 15000,
+  responseTimeout: 15000,
+  pageLoadTimeout: 30000,
+
+  // ── Reporter ──
+  reporter: "cypress-mochawesome-reporter",
   reporterOptions: {
-    reportDir: 'cypress/mochaReports',
-    overwrite: true,
-    saveJson: true,
-    html: true, // Ensure HTML is enabled
-    reportFilename: 'mochawesome-report',
     charts: true,
+    reportPageTitle: "Automation Test Report",
     embeddedScreenshots: true,
     inlineAssets: true,
     saveAllAttempts: false,
   },
+
+  e2e: {
+    // ── Base URL ──
+    // Set in cypress.env.json or via --env baseUrl=https://...
+    // baseUrl is read from env at runtime — do not hardcode here.
+
+    specPattern: "cypress/tests/**/*.cy.js",
+    supportFile: "cypress/support/e2e.js",
+    fixturesFolder: "cypress/fixtures",
+    downloadsFolder: "cypress/downloads",
+    screenshotsFolder: "cypress/screenshots",
+    videosFolder: "cypress/videos",
+
+    setupNodeEvents(on, config) {
+      // ── Cypress Grep plugin ──
+      cypressGrepPlugin(config);
+
+      // ── Webpack preprocessor (path aliases) ──
+      on(
+        "file:preprocessor",
+        webpackPreprocessor({ webpackOptions: webpackConfig }),
+      );
+
+      // ── Environment config merge ──
+      const envConfig = loadEnvConfig(config.env.configFile);
+      config.env = { ...config.env, ...envConfig };
+
+      // ── Base URL from env ──
+      // Only apply env baseUrl if not already set via --config baseUrl=...
+      if (config.env.baseUrl && !config.baseUrl) {
+        config.baseUrl = config.env.baseUrl;
+      }
+
+      return config;
+    },
+  },
 });
-
-function getEnvironment() {
-  const env = process.env.CYPRESS_ENVIRONMENT;
-  if (!env) {
-    throw new Error('CYPRESS_ENVIRONMENT is required but not set.');
-  }
-  return env;
-}
-
-function getSpecPattern() {
-  const isDev = getEnvironment() === 'dev';
-  const testType = isDev ? 'end-to-end' : 'smoke';
-
-  console.log(
-    `Executing ${testType} Tests in ${isDev ? 'DEV' : 'PROD'} environment`
-  );
-
-  return path.join('cypress', 'e2e', '**', `${testType}`, `**`, `*.js`);
-}
