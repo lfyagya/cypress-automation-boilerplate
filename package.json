@@ -1,19 +1,33 @@
 {
-  "name": "cypress-command-first-boilerplate",
-  "version": "1.0.0",
-  "description": "Cypress automation boilerplate — Config → Custom Commands → Tests. No page objects. No action files.",
+  "name": "cypress-automation-boilerplate",
+  "version": "2.0.0",
+  "description": "Production-ready Cypress automation boilerplate — Config → Custom Commands → Tests. AI-powered with GitHub Copilot ecosystem.",
+  "keywords": [
+    "cypress",
+    "automation",
+    "testing",
+    "e2e",
+    "command-first",
+    "boilerplate"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lfyagya/cypress-automation-boilerplate.git"
+  },
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "cy:run:smoke": "cypress run --spec 'cypress/tests/**/smoke/**/*.cy.js'",
     "cy:run:e2e": "cypress run --spec 'cypress/tests/**/e2e/**/*.cy.js'",
-    "cy:run:module": "cypress run --spec \"cypress/tests/${MODULE}/**/*.cy.js\"",
+    "cy:run:saucedemo": "cypress run --spec 'cypress/tests/saucedemo/**/*.cy.js'",
     "cy:run:tag": "cypress run --env grepTags=${TAG}",
+    "cy:run:headed": "cypress run --headed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:all": "npm run lint && npm run format:check"
+    "pretest": "npm run lint",
+    "test": "npm run cy:run:smoke"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -24,7 +38,7 @@
     "@faker-js/faker": "^9.3.0",
     "@testing-library/cypress": "^10.0.3",
     "babel-loader": "^9.2.1",
-    "cypress": "^13.16.0",
+    "cypress": "^15.3.0",
     "cypress-mochawesome-reporter": "^3.8.2",
     "cypress-real-events": "^1.13.0",
     "cypress-wait-until": "^2.0.1",
@@ -32,6 +46,9 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^3.6.0",
     "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "author": "",
   "license": "ISC"

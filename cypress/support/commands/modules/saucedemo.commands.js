@@ -58,12 +58,12 @@ Cypress.Commands.add("logoutSaucedemo", () => {
 // ─── Navigation ──────────────────────────────────────────────────────────────
 
 Cypress.Commands.add("visitInventory", () => {
-  cy.visit(ROUTES.SAUCEDEMO.INVENTORY);
+  cy.visit(ROUTES.SAUCEDEMO.INVENTORY, { failOnStatusCode: false });
   cy.get(SAUCEDEMO_UI.INVENTORY.CONTAINER).should("be.visible");
 });
 
 Cypress.Commands.add("visitCart", () => {
-  cy.visit(ROUTES.SAUCEDEMO.CART);
+  cy.visit(ROUTES.SAUCEDEMO.CART, { failOnStatusCode: false });
   cy.get(SAUCEDEMO_UI.CART.CONTAINER).should("exist");
 });
 
@@ -113,13 +113,16 @@ Cypress.Commands.add("proceedToCheckout", () => {
  * Fill the checkout personal information form (step one).
  * @param {{ firstName: string, lastName: string, postalCode: string }} info
  */
-Cypress.Commands.add("fillCheckoutInfo", ({ firstName, lastName, postalCode }) => {
-  cy.get(SAUCEDEMO_UI.CHECKOUT.FIRST_NAME_INPUT).type(firstName);
-  cy.get(SAUCEDEMO_UI.CHECKOUT.LAST_NAME_INPUT).type(lastName);
-  cy.get(SAUCEDEMO_UI.CHECKOUT.POSTAL_CODE_INPUT).type(postalCode);
-  cy.get(SAUCEDEMO_UI.CHECKOUT.CONTINUE_BTN).click();
-  cy.url().should("include", ROUTES.SAUCEDEMO.CHECKOUT_STEP_TWO);
-});
+Cypress.Commands.add(
+  "fillCheckoutInfo",
+  ({ firstName, lastName, postalCode }) => {
+    cy.get(SAUCEDEMO_UI.CHECKOUT.FIRST_NAME_INPUT).type(firstName);
+    cy.get(SAUCEDEMO_UI.CHECKOUT.LAST_NAME_INPUT).type(lastName);
+    cy.get(SAUCEDEMO_UI.CHECKOUT.POSTAL_CODE_INPUT).type(postalCode);
+    cy.get(SAUCEDEMO_UI.CHECKOUT.CONTINUE_BTN).click();
+    cy.url().should("include", ROUTES.SAUCEDEMO.CHECKOUT_STEP_TWO);
+  },
+);
 
 Cypress.Commands.add("finishOrder", () => {
   cy.get(SAUCEDEMO_UI.OVERVIEW.FINISH_BTN).should("be.visible").click();

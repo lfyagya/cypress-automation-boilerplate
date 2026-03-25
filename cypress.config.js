@@ -6,7 +6,7 @@ const webpackPreprocessor = require("@cypress/webpack-preprocessor");
 const webpackConfig = require("./cypress/webpack.config.js");
 
 /**
- * Load environment-specific config from cypress/config/cypress.env.{env}.json
+ * Load environment-specific config from cypress/environments/cypress.env.{env}.json
  * Usage: cypress run --env configFile=qa
  */
 function loadEnvConfig(configFile) {
@@ -14,7 +14,7 @@ function loadEnvConfig(configFile) {
   const filePath = path.resolve(
     __dirname,
     "cypress",
-    "config",
+    "environments",
     `cypress.env.${configFile}.json`,
   );
   if (!fs.existsSync(filePath)) {
@@ -33,7 +33,6 @@ module.exports = defineConfig({
   viewportHeight: 1080,
 
   // ── Memory Management ──
-  experimentalMemoryManagement: true,
   numTestsKeptInMemory: 5,
 
   // ── Timeouts ──
@@ -50,13 +49,10 @@ module.exports = defineConfig({
     embeddedScreenshots: true,
     inlineAssets: true,
     saveAllAttempts: false,
+    reportDir: "cypress/reports/html",
   },
 
   e2e: {
-    // ── Base URL ──
-    // Set in cypress.env.json or via --env baseUrl=https://...
-    // baseUrl is read from env at runtime — do not hardcode here.
-
     specPattern: "cypress/tests/**/*.cy.js",
     supportFile: "cypress/support/e2e.js",
     fixturesFolder: "cypress/fixtures",
@@ -65,6 +61,9 @@ module.exports = defineConfig({
     videosFolder: "cypress/videos",
 
     setupNodeEvents(on, config) {
+      // ── Mochawesome reporter ──
+      require("cypress-mochawesome-reporter/plugin")(on);
+
       // ── Cypress Grep plugin ──
       cypressGrepPlugin(config);
 
@@ -74,12 +73,19 @@ module.exports = defineConfig({
         webpackPreprocessor({ webpackOptions: webpackConfig }),
       );
 
+      // ── Debug task ──
+      on("task", {
+        log(message) {
+          console.log(message);
+          return null;
+        },
+      });
+
       // ── Environment config merge ──
       const envConfig = loadEnvConfig(config.env.configFile);
       config.env = { ...config.env, ...envConfig };
 
       // ── Base URL from env ──
-      // Only apply env baseUrl if not already set via --config baseUrl=...
       if (config.env.baseUrl && !config.baseUrl) {
         config.baseUrl = config.env.baseUrl;
       }

@@ -25,11 +25,8 @@ import { SAUCEDEMO_UI } from "@configs/ui/modules/saucedemo/saucedemo.ui";
 import { ROUTES } from "@configs/app/routes";
 
 describe("Saucedemo — Smoke Tests", { tags: ["@saucedemo"] }, () => {
-  before(() => {
-    cy.loginSaucedemo();
-  });
-
   beforeEach(() => {
+    cy.loginSaucedemo();
     cy.visitInventory();
   });
 
@@ -65,7 +62,9 @@ describe("Saucedemo — Smoke Tests", { tags: ["@saucedemo"] }, () => {
   it("sorts inventory by Price (low to high)", () => {
     cy.sortInventoryBy("lohi");
     cy.get(SAUCEDEMO_UI.INVENTORY.ITEM_PRICE).then(($prices) => {
-      const prices = [...$prices].map((el) => parseFloat(el.innerText.replace("$", "")));
+      const prices = [...$prices].map((el) =>
+        parseFloat(el.innerText.replace("$", "")),
+      );
       const sorted = [...prices].sort((a, b) => a - b);
       expect(prices).to.deep.equal(sorted);
     });
@@ -73,17 +72,25 @@ describe("Saucedemo — Smoke Tests", { tags: ["@saucedemo"] }, () => {
 
   // ─── Cart ──────────────────────────────────────────────────────────────────
 
-  it("adds a product to the cart and updates the badge", { tags: ["@smoke", "@cart"] }, () => {
-    cy.assertCartIsEmpty();
-    cy.addToCart("sauce-labs-backpack");
-    cy.assertCartBadge(1);
-  });
+  it(
+    "adds a product to the cart and updates the badge",
+    { tags: ["@smoke", "@cart"] },
+    () => {
+      cy.assertCartIsEmpty();
+      cy.addToCart("sauce-labs-backpack");
+      cy.assertCartBadge(1);
+    },
+  );
 
-  it("adds multiple products and reflects correct badge count", { tags: ["@cart"] }, () => {
-    cy.addToCart("sauce-labs-backpack");
-    cy.addToCart("sauce-labs-bike-light");
-    cy.assertCartBadge(2);
-  });
+  it(
+    "adds multiple products and reflects correct badge count",
+    { tags: ["@cart"] },
+    () => {
+      cy.addToCart("sauce-labs-backpack");
+      cy.addToCart("sauce-labs-bike-light");
+      cy.assertCartBadge(2);
+    },
+  );
 
   it("removes a product and updates the badge", { tags: ["@cart"] }, () => {
     cy.addToCart("sauce-labs-backpack");

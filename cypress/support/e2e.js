@@ -11,6 +11,7 @@
 
 import "./commands";
 import "@cypress/grep/src/support";
+import "cypress-mochawesome-reporter/register";
 
 // ─── Global Exception Handling ───────────────────────────────────────────────
 // Suppress known non-critical app errors from failing tests.
