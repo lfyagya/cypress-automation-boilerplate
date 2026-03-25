@@ -1,38 +1,38 @@
 /**
  * @fileoverview Example module UI selectors.
- * All selectors target [data-cy="..."] attributes — never CSS classes or XPath.
+ * Values are bare data-cy IDs — used with cy.getByTestId(id).
  *
  * Convention:
  *   - Group by component/view (LIST, FORM, DETAIL)
  *   - Use UPPER_SNAKE_CASE for constant keys
- *   - Dynamic selectors are functions that return a string
+ *   - Dynamic selectors are functions returning the bare ID string
  */
 
 export const EXAMPLE_UI = Object.freeze({
   LIST: {
-    CONTAINER: '[data-cy="example-list"]',
-    SEARCH_INPUT: '[data-cy="example-search-input"]',
-    SEARCH_BTN: '[data-cy="example-search-btn"]',
-    CLEAR_BTN: '[data-cy="example-clear-btn"]',
-    TABLE: '[data-cy="example-table"]',
-    TABLE_ROW: '[data-cy="example-table-row"]',
-    TABLE_ROW_BY_ID: (id) => `[data-cy="example-table-row-${id}"]`,
-    LOADING_SPINNER: '[data-cy="example-list-loading"]',
-    EMPTY_STATE: '[data-cy="example-empty-state"]',
-    PAGINATION: '[data-cy="example-pagination"]',
+    CONTAINER: "example-list",
+    SEARCH_INPUT: "example-search-input",
+    SEARCH_BTN: "example-search-btn",
+    CLEAR_BTN: "example-clear-btn",
+    TABLE: "example-table",
+    TABLE_ROW: "example-table-row",
+    TABLE_ROW_BY_ID: (id) => `example-table-row-${id}`,
+    LOADING_SPINNER: "example-list-loading",
+    EMPTY_STATE: "example-empty-state",
+    PAGINATION: "example-pagination",
   },
   FORM: {
-    CONTAINER: '[data-cy="example-form"]',
-    NAME_INPUT: '[data-cy="example-form-name"]',
-    STATUS_SELECT: '[data-cy="example-form-status"]',
-    SUBMIT_BTN: '[data-cy="example-form-submit"]',
-    CANCEL_BTN: '[data-cy="example-form-cancel"]',
-    ERROR_MSG: '[data-cy="example-form-error"]',
+    CONTAINER: "example-form",
+    NAME_INPUT: "example-form-name",
+    STATUS_SELECT: "example-form-status",
+    SUBMIT_BTN: "example-form-submit",
+    CANCEL_BTN: "example-form-cancel",
+    ERROR_MSG: "example-form-error",
   },
   DETAIL: {
-    CONTAINER: '[data-cy="example-detail"]',
-    TITLE: '[data-cy="example-detail-title"]',
-    EDIT_BTN: '[data-cy="example-detail-edit"]',
-    DELETE_BTN: '[data-cy="example-detail-delete"]',
+    CONTAINER: "example-detail",
+    TITLE: "example-detail-title",
+    EDIT_BTN: "example-detail-edit",
+    DELETE_BTN: "example-detail-delete",
   },
 });

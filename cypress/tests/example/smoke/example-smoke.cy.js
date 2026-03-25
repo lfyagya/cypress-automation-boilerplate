@@ -16,7 +16,9 @@
 import { EXAMPLE_SCHEMAS } from "@schemas/example.schema";
 import { EXAMPLE_CONFIG } from "@configs/api/modules/example/example.api";
 
-describe("Example Module", { tags: ["@example"] }, () => {
+// TEMPLATE ONLY — copy this file to start a new module spec.
+// Skipped intentionally: no backing application exists at baseUrl for these commands.
+describe.skip("Example Module", { tags: ["@example"] }, () => {
   before(() => {
     cy.ensureAuthenticated();
   });

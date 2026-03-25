@@ -26,25 +26,25 @@ Cypress.Commands.add("visitExampleList", () => {
 
 Cypress.Commands.add("searchExamples", (query) => {
   cy.apiIntercept(EXAMPLE_CONFIG.EXAMPLE_SEARCH);
-  cy.get(EXAMPLE_UI.LIST.SEARCH_INPUT).clear().type(query);
-  cy.get(EXAMPLE_UI.LIST.SEARCH_BTN).click();
+  cy.getByTestId(EXAMPLE_UI.LIST.SEARCH_INPUT).clear().type(query);
+  cy.getByTestId(EXAMPLE_UI.LIST.SEARCH_BTN).click();
   cy.apiWait(EXAMPLE_CONFIG.EXAMPLE_SEARCH);
 });
 
 Cypress.Commands.add("clearExampleSearch", () => {
-  cy.get(EXAMPLE_UI.LIST.CLEAR_BTN).click();
+  cy.getByTestId(EXAMPLE_UI.LIST.CLEAR_BTN).click();
   cy.apiWait(EXAMPLE_CONFIG.EXAMPLES_LIST);
 });
 
 // ─── Assertions ──────────────────────────────────────────────────────────────
 
 Cypress.Commands.add("assertExampleListLoaded", () => {
-  cy.get(EXAMPLE_UI.LIST.TABLE).should("be.visible");
-  cy.get(EXAMPLE_UI.LIST.LOADING_SPINNER).should("not.exist");
+  cy.getByTestId(EXAMPLE_UI.LIST.TABLE).should("be.visible");
+  cy.getByTestId(EXAMPLE_UI.LIST.LOADING_SPINNER).should("not.exist");
 });
 
 Cypress.Commands.add("assertExampleEmptyState", () => {
-  cy.get(EXAMPLE_UI.LIST.EMPTY_STATE).should("be.visible");
+  cy.getByTestId(EXAMPLE_UI.LIST.EMPTY_STATE).should("be.visible");
 });
 
 // ─── Create / Edit ───────────────────────────────────────────────────────────
@@ -52,11 +52,14 @@ Cypress.Commands.add("assertExampleEmptyState", () => {
 Cypress.Commands.add("createExample", (fields) => {
   cy.apiIntercept(EXAMPLE_CONFIG.EXAMPLES_CREATE);
   cy.fillForm({
-    [EXAMPLE_UI.FORM.NAME_INPUT]: fields.name,
+    [`[data-cy="${EXAMPLE_UI.FORM.NAME_INPUT}"]`]: fields.name,
   });
   if (fields.status)
-    cy.selectOption(EXAMPLE_UI.FORM.STATUS_SELECT, fields.status);
-  cy.get(EXAMPLE_UI.FORM.SUBMIT_BTN).click();
+    cy.selectOption(
+      `[data-cy="${EXAMPLE_UI.FORM.STATUS_SELECT}"]`,
+      fields.status,
+    );
+  cy.getByTestId(EXAMPLE_UI.FORM.SUBMIT_BTN).click();
   cy.apiWait(EXAMPLE_CONFIG.EXAMPLES_CREATE)
     .its("response.statusCode")
     .should("eq", 201);
