@@ -1,0 +1,5 @@
+{
+  "selectors": ["body", "html"],
+  "routes": ["/"],
+  "endpoints": []
+}

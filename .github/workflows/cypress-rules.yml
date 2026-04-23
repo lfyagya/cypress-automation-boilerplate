@@ -1,0 +1,44 @@
+name: Cypress Architecture Rules
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runs the non-negotiable architecture validation hook on every PR that touches
+# Cypress code, hooks, or framework config.
+#
+# This is the CI equivalent of the .claude/hooks/validate-cypress-rules.mjs
+# hook that runs locally on every file write. Both run the same script —
+# CI catches anything that slipped through local enforcement.
+#
+# Blocks merge if:
+#   - cy.wait(number) is found
+#   - hardcoded selectors are found in tests or commands
+#   - hardcoded URLs are found in tests or commands
+#   - new *.actions.js files are added
+#   - new page-object wrapper files are added
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    paths:
+      - "cypress/**"
+      - ".claude/hooks/**"
+      - ".claude/settings.json"
+      - "CLAUDE.md"
+
+jobs:
+  validate-architecture:
+    name: Architecture Rules Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate non-negotiable rules
+        run: node .claude/hooks/validate-cypress-rules.mjs --base-ref "${{ github.base_ref }}"

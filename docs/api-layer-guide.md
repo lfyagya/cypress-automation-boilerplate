@@ -1,134 +1,213 @@
 # API Layer Guide
 
-## How It Works
+> **This is a reference + how-to doc.** It explains the API engine, documents every command, and shows how to use each one correctly. Use it when writing or debugging anything that touches network intercepts.
 
-```text
-createModuleConfig()        ← factory: builds intercept config from a route spec
-     ↓
-api.engine.js               ← pure functions: registerIntercept, waitForAPI, etc.
-     ↓
-api.commands.js             ← Cypress.Commands.add wrappers
-     ↓
-<module>.commands.js        ← calls cy.apiIntercept / cy.apiWait
-     ↓
-spec.cy.js                  ← calls module commands
+---
+
+## How the API Layer Works
+
+```mermaid
+flowchart TD
+    A["API Config\n[name].api.js\nFrozen constants: method · endpoint · alias · status"]
+    B["api.engine.js\nPure functions: registerIntercept · waitForAPI · etc.\nDo not modify per project"]
+    C["api.commands.js\nCypress.Commands.add wrappers\ncy.apiIntercept · cy.apiWait · cy.apiStub"]
+    D["[module].commands.js\nCalls cy.apiIntercept and cy.apiWait\nOwns the intercept lifecycle for one module"]
+    E["spec.cy.js\nCalls module commands only\nNever calls cy.apiIntercept directly"]
+
+    A --> B --> C --> D --> E
 ```
 
-## Creating an API Config
+**The spec never calls `cy.apiIntercept` directly.** It calls a module command (e.g. `cy.visitPayments()`), which owns the intercept setup internally. This keeps specs clean and ensures intercepts are always registered in the right order.
 
-```js
-// cypress/configs/api/modules/payments/payments.api.js
-import { createModuleConfig } from "@core/api";
+---
 
-export const PAYMENTS_CONFIG = createModuleConfig({
-  basePath: "/api/v1/payments",
-  prefix: "PAYMENT",
-  resources: ["LIST", "DETAILS", "CREATE", "UPDATE", "DELETE"],
-  custom: [
-    {
-      alias: "PAYMENT_VOID",
-      method: "POST",
-      pattern: "/api/v1/payments/**/void",
-    },
-  ],
+## The Critical Rule: Intercept Before Visit
+
+Intercepts must be registered **before** the page visit that triggers the request. Network requests fire the moment the browser navigates. If you register an intercept after `cy.visit()`, the request has already passed.
+
+```javascript
+// Correct — intercept registered before the page loads
+beforeEach(() => {
+  cy.apiIntercept(PAYMENTS_API, "LIST");
+  cy.visit("/payments");
+  cy.apiWait("@paymentsList");
+});
+
+// Wrong — the LIST request fires on page load, before the intercept is registered
+beforeEach(() => {
+  cy.visit("/payments");
+  cy.apiIntercept(PAYMENTS_API, "LIST"); // too late
 });
 ```
 
-`createModuleConfig` generates the following alias→method→URL map automatically:
+---
 
-| Alias              | Method | URL Pattern                |
-| ------------------ | ------ | -------------------------- |
-| `@PAYMENT_LIST`    | GET    | `/api/v1/payments`         |
-| `@PAYMENT_DETAILS` | GET    | `/api/v1/payments/**`      |
-| `@PAYMENT_CREATE`  | POST   | `/api/v1/payments`         |
-| `@PAYMENT_UPDATE`  | PUT    | `/api/v1/payments/**`      |
-| `@PAYMENT_DELETE`  | DELETE | `/api/v1/payments/**`      |
-| `@PAYMENT_VOID`    | POST   | `/api/v1/payments/**/void` |
+## API Config Shape
 
-## Available Commands
+Every API config entry is a frozen object with four required fields:
 
-### `cy.apiIntercept(config, alias)`
+```javascript
+import { HTTP_STATUS } from "@support/core/api/status-codes.js";
 
-Register a single intercept before visiting a page.
+export const PAYMENTS_API = Object.freeze({
+  LIST: Object.freeze({
+    method: "GET",           // HTTP method
+    endpoint: "**/api/payments**",  // glob pattern — ** matches any path segment
+    alias: "paymentsList",   // unique camelCase — used as @paymentsList in cy.apiWait
+    expectedStatus: HTTP_STATUS.OK, // validated on wait
+  }),
+  CREATE: Object.freeze({
+    method: "POST",
+    endpoint: "**/api/payments**",
+    alias: "paymentsCreate",
+    expectedStatus: HTTP_STATUS.CREATED,
+  }),
+});
+```
 
-```js
-cy.apiIntercept(PAYMENTS_CONFIG, "PAYMENT_LIST");
+**Alias naming convention:** `[module][Action]` in camelCase — `paymentsList`, `paymentsCreate`, `paymentsVoid`. Must be unique across all API configs.
+
+**Endpoint patterns:** Use `**` as a wildcard for any path segment. `**/api/payments**` matches `https://app.com/api/payments`, `https://api.app.com/v2/api/payments`, etc.
+
+---
+
+## Command Reference
+
+### `cy.apiIntercept(config, key)`
+
+Registers a single intercept before a page visit.
+
+```javascript
+cy.apiIntercept(PAYMENTS_API, "LIST");
 cy.visit("/payments");
-cy.apiWait("@PAYMENT_LIST");
+cy.apiWait("@paymentsList");
 ```
 
-### `cy.apiInterceptAll(config, options?)`
+Use this when you need fine-grained control over which intercepts are active.
 
-Register all intercepts for a module at once.
-
-```js
-cy.apiInterceptAll(PAYMENTS_CONFIG);
-// options: { only: ['PAYMENT_LIST'], except: ['PAYMENT_DELETE'] }
-```
+---
 
 ### `cy.apiWait(alias)`
 
-Wait for a registered intercept to complete.
+Waits for a registered intercept to complete. Returns the interception object.
 
-```js
-cy.apiWait("@PAYMENT_LIST").then(({ response }) => {
+```javascript
+cy.apiWait("@paymentsList");
+
+// With response inspection
+cy.apiWait("@paymentsList").then(({ response }) => {
   expect(response.statusCode).to.eq(200);
+  expect(response.body.items).to.have.length.above(0);
 });
 ```
+
+`cy.apiWait()` replaces `cy.wait(number)` — it waits for the actual network response, not a guessed duration.
+
+---
 
 ### `cy.apiWaitAll(aliases)`
 
-Wait for multiple intercepts simultaneously.
+Waits for multiple intercepts simultaneously. Use when a page load triggers several parallel requests.
 
-```js
-cy.apiWaitAll(["@PAYMENT_LIST", "@USER_PROFILE"]);
+```javascript
+cy.apiWaitAll(["@paymentsList", "@userProfile", "@notificationCount"]);
 ```
+
+---
+
+### `cy.apiStub(config, key, response)`
+
+Returns a mocked response instead of hitting the real server. Use for testing edge cases (empty state, error states, large datasets) without needing the backend to produce them.
+
+```javascript
+// Test empty state
+cy.apiStub(PAYMENTS_API, "LIST", {
+  body: { items: [], total: 0 },
+  statusCode: 200,
+});
+
+// Test server error
+cy.apiStub(PAYMENTS_API, "LIST", {
+  statusCode: 500,
+  body: { error: "Internal Server Error" },
+});
+```
+
+---
 
 ### `cy.apiRequest(options)`
 
-Make a direct API call (for setup/teardown, not for testing UI flows).
+Makes a direct HTTP request. Use for test setup and teardown — creating seed data, cleaning up records — not for testing UI flows.
 
-```js
+```javascript
+// Create a payment record before the test
 cy.apiRequest({
   method: "POST",
-  url: "/api/v1/payments",
-  body: { amount: 100 },
+  url: "/api/payments",
+  body: { amount: 100, currency: "USD" },
+  headers: { Authorization: `Bearer ${Cypress.env("apiToken")}` },
 });
 ```
 
-### `cy.apiStub(config, alias, response)`
+---
 
-Return a mocked response instead of hitting the real server.
+## Response Schema Validation
 
-```js
-cy.apiStub(PAYMENTS_CONFIG, "PAYMENT_LIST", { body: { items: [], total: 0 } });
+Validate that API responses match the expected shape using `cy.validateSchema()`.
+
+Create a schema file at `cypress/schemas/[name].schema.js`:
+
+```javascript
+export const PAYMENTS_SCHEMAS = {
+  LIST: {
+    type: "object",
+    required: ["items", "total"],
+    properties: {
+      items: { type: "array" },
+      total: { type: "number" },
+    },
+  },
+};
 ```
 
-## Intercepting Before `cy.visit()`
+Use it in a test:
 
-**Critical rule:** Intercepts must be registered before the page visit that triggers the request.
+```javascript
+import { PAYMENTS_SCHEMAS } from "@schemas/payments.schema";
 
-```js
-// ✅ Correct
-beforeEach(() => {
-  cy.apiIntercept(CONFIG, "EXAMPLE_LIST");
-  cy.visit("/example");
-  cy.apiWait("@EXAMPLE_LIST");
-});
-
-// ❌ Wrong — the request may fire before the intercept is registered
-beforeEach(() => {
-  cy.visit("/example");
-  cy.apiIntercept(CONFIG, "EXAMPLE_LIST"); // too late
+cy.apiWait("@paymentsList").then(({ response }) => {
+  cy.validateSchema(response.body, PAYMENTS_SCHEMAS.LIST);
 });
 ```
 
-## Validating Response Shape
+Schema validation catches API contract breaks early — before they silently corrupt test data or produce misleading UI assertions.
 
-```js
-import { EXAMPLE_SCHEMAS } from "@schemas/example.schema";
+---
 
-cy.apiWait("@EXAMPLE_LIST").then(({ response }) => {
-  cy.validateSchema(response.body, EXAMPLE_SCHEMAS.LIST);
-});
+## Common Mistakes
+
+| Mistake | What happens | Fix |
+| ------- | ------------ | --- |
+| `cy.visit()` before `cy.apiIntercept()` | Intercept never fires, `cy.apiWait()` times out | Register intercept first, always |
+| Duplicate alias across modules | Second intercept silently overrides the first | Keep aliases unique — check all API configs before adding |
+| Using `cy.wait(2000)` instead of `cy.apiWait()` | Test is timing-dependent, fails on slow CI | Always use `cy.apiWait('@alias')` |
+| Calling `cy.apiIntercept()` directly in a spec | Ownership leak — specs should not know about intercepts | Move to the module's `intercept*` command |
+| Glob pattern too broad (e.g. `**`) | Intercept matches unintended requests | Use specific patterns: `**/api/payments**` |
+
+---
+
+## Path Aliases
+
+The framework ships with three path aliases for clean imports:
+
+| Alias | Resolves to |
+| ----- | ----------- |
+| `@configs` | `cypress/configs/` |
+| `@support` | `cypress/support/` |
+| `@fixtures` | `cypress/fixtures/` |
+
+```javascript
+import { PAYMENTS_API } from "@configs/api/modules/payments/payments.api";
+import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import paymentData from "@fixtures/payments.json";
 ```

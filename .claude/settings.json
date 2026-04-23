@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/prompt-duplication-guard.mjs"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/pre-validate-cypress-rules.mjs"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/validate-cypress-rules.mjs"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-end-reminder.mjs"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "medium",
+  "permissions": {
+    "defaultMode": "plan",
+    "allow": [
+      "Bash(npm run cy:open*)",
+      "Bash(npm run cy:run*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run format*)",
+      "Bash(npx cypress*)",
+      "Bash(grep -r* cypress/*)",
+      "Bash(find cypress/*)"
+    ],
+    "deny": ["WebSearch"]
+  }
+}

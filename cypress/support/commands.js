@@ -8,6 +8,9 @@
  *   import './modules/your-module.commands';
  */
 
+// ─── API Engine ──────────────────────────────────────────────────────────────
+import "./core/api";
+
 // ─── Core ────────────────────────────────────────────────────────────────────
 import "./commands/common/auth.commands";
 import "./commands/common/navigation.commands";
