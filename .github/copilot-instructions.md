@@ -20,10 +20,11 @@ Preferred model: Claude Sonnet 4.6
 ## Canonical Documentation
 
 - `/docs/README.md`
-- `/docs/framework-standards.md`
-- `/docs/framework-maintenance-guide.md`
-- `/docs/support-commands-instructions.md`
-- `/docs/api-layer-guide.md`
+- `/docs/reference/framework-standards.md`
+- `/docs/reference/api-layer-guide.md`
+- `/docs/reference/test-organization.md`
+- `/docs/guides/framework-maintenance-guide.md`
+- `/docs/guides/support-commands-instructions.md`
 
 ## Copilot Operating Reference
 

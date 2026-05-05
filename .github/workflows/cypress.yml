@@ -99,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: smoke-report-${{ github.run_id }}
-          path: reports/
+          path: cypress/reports/html/
           retention-days: 14
 
   # ── Job 2: Full E2E — runs only on push to main ───────────────────────────
@@ -168,5 +168,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: e2e-${{ matrix.module }}-report-${{ github.run_id }}
-          path: reports/
+          path: cypress/reports/html/
           retention-days: 14

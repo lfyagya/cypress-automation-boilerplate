@@ -136,7 +136,7 @@ If you need something new in an existing module:
 
 **New command** → add it to the existing module command file. Check the name is not already used anywhere.
 
-See [docs/framework-maintenance-guide.md](framework-maintenance-guide.md) for the exact patterns.
+See [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md) for the exact patterns.
 
 ---
 
@@ -144,7 +144,7 @@ See [docs/framework-maintenance-guide.md](framework-maintenance-guide.md) for th
 
 Only do this if no existing module covers the feature you are testing.
 
-Follow the 6-step module checklist in [docs/getting-started.md](getting-started.md#step-7--write-your-first-module).
+Follow the 6-step module checklist in [docs/onboarding/getting-started.md](getting-started.md#step-7--write-your-first-module).
 
 Before starting: run `/detect-duplication`, confirm the module does not exist, and check `cypress/support/commands/common/` for any shared commands you can reuse.
 
@@ -202,7 +202,7 @@ If CI blocks your PR, read the error output: it will name the exact file and lin
 | ------- | ----------- |
 | Test is failing | `cypress-bug-hunter` agent or `/cypress-debug-playbook` |
 | Not sure if something already exists | `/detect-duplication` skill |
-| Need to understand the architecture | [docs/framework-standards.md](framework-standards.md) |
-| Need to add a new module | [docs/framework-maintenance-guide.md](framework-maintenance-guide.md) |
-| CI pipeline failing | [docs/ci-cd-guide.md](ci-cd-guide.md) |
-| Command doesn't exist yet | [docs/support-commands-instructions.md](support-commands-instructions.md) |
+| Need to understand the architecture | [docs/reference/framework-standards.md](../reference/framework-standards.md) |
+| Need to add a new module | [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md) |
+| CI pipeline failing | [docs/guides/ci-cd-guide.md](../guides/ci-cd-guide.md) |
+| Command doesn't exist yet | [docs/guides/support-commands-instructions.md](../guides/support-commands-instructions.md) |

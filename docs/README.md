@@ -1,19 +1,54 @@
-# Documentation Index
+# Documentation
 
-| Document                                                             | Purpose                                                   |
-| -------------------------------------------------------------------- | --------------------------------------------------------- |
-| [getting-started.md](getting-started.md)                             | Onboarding — clone, install, run first test               |
-| [framework-standards.md](framework-standards.md)                     | Architecture rules, folder layout, naming                 |
-| [api-layer-guide.md](api-layer-guide.md)                             | API engine, factory, intercepts, stubs                    |
-| [support-commands-instructions.md](support-commands-instructions.md) | How to author custom commands                             |
-| [framework-maintenance-guide.md](framework-maintenance-guide.md)     | Adding modules, updating dependencies                     |
-| [prompting-guide.md](prompting-guide.md)                             | How to use GitHub Copilot effectively with this framework |
+Find what you need by role, not by guessing file names.
 
-## Quick Navigation
+| I am... | Start here |
+| ------- | ---------- |
+| New to this project — first time setup | [onboarding/getting-started.md](onboarding/getting-started.md) |
+| Joining a team already using this framework | [onboarding/joining-an-existing-project.md](onboarding/joining-an-existing-project.md) |
+| Writing a test or command right now | [guides/support-commands-instructions.md](guides/support-commands-instructions.md) |
+| Adding a module, endpoint, or selector | [guides/framework-maintenance-guide.md](guides/framework-maintenance-guide.md) |
+| Looking up a rule, standard, or selector strategy | [reference/framework-standards.md](reference/framework-standards.md) |
+| Understanding why the architecture works this way | [reference/test-organization.md](reference/test-organization.md) |
+| Working with API intercepts or schema validation | [reference/api-layer-guide.md](reference/api-layer-guide.md) |
+| Asking why a past decision was made | [decisions/](decisions/) |
 
-- **New to the project?** → [getting-started.md](getting-started.md)
-- **Writing a test?** → [framework-standards.md](framework-standards.md)
-- **Adding an API endpoint?** → [api-layer-guide.md](api-layer-guide.md)
-- **Writing a new command?** → [support-commands-instructions.md](support-commands-instructions.md)
-- **Adapting for a new application?** → [framework-maintenance-guide.md](framework-maintenance-guide.md)
-- **Using Copilot prompts/agents?** → [prompting-guide.md](prompting-guide.md)
+---
+
+## Folder Map
+
+```text
+docs/
+├── onboarding/    ← Read once, in order — setup and orientation
+├── guides/        ← Task-oriented — "how do I do X right now?"
+├── reference/     ← Look-up — rules, standards, command catalogue
+└── decisions/     ← ADRs — append-only record of architecture choices
+```
+
+### onboarding/ — tutorials, read linearly
+
+| File | When to read it |
+| ---- | --------------- |
+| [getting-started.md](onboarding/getting-started.md) | First time — install, configure, run first test |
+| [joining-an-existing-project.md](onboarding/joining-an-existing-project.md) | Joining mid-project — orient, find commands, add without breaking |
+
+### guides/ — task-oriented how-to docs
+
+| File | When to read it |
+| ---- | --------------- |
+| [framework-maintenance-guide.md](guides/framework-maintenance-guide.md) | Adding a module, endpoint, selector, or environment |
+| [support-commands-instructions.md](guides/support-commands-instructions.md) | Writing a new `cy.*` command — naming, structure, ownership |
+| [ci-cd-guide.md](guides/ci-cd-guide.md) | Pipeline setup, secrets, reading results |
+| [prompting-guide.md](guides/prompting-guide.md) | How to prompt Claude Code and Copilot effectively |
+
+### reference/ — look-up material, consult repeatedly
+
+| File | When to read it |
+| ---- | --------------- |
+| [framework-standards.md](reference/framework-standards.md) | Architecture rules, naming conventions, selector strategy, tagging |
+| [api-layer-guide.md](reference/api-layer-guide.md) | Every API command documented — `cy.apiIntercept`, `cy.apiWait`, `cy.apiStub` |
+| [test-organization.md](reference/test-organization.md) | Why configs/tests/commands are split this way — principles behind each decision |
+
+### decisions/ — Architecture Decision Records
+
+Append-only. One file per decision, numbered sequentially. See [decisions/README.md](decisions/README.md) for the format.

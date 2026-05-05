@@ -1,6 +1,7 @@
 /**
  * @fileoverview UI utility commands.
  *
+ * cy.step(message)            — label a logical test step in the Cypress UI timeline.
  * cy.getByTestId(id)          — query [data-cy="id"]   — for apps using data-cy attributes.
  * cy.getByDataTest(id)        — query [data-test="id"] — for apps using data-test attributes (e.g. Saucedemo).
  * cy.ensureVisible(selector)  — assert visible before interaction.
@@ -8,6 +9,11 @@
  * cy.assertLoadingComplete()  — wait for loading spinners to disappear.
  * cy.closeModal()             — close an open modal dialog.
  */
+
+// Labels a logical step in the Cypress command log — useful for readability in long tests.
+Cypress.Commands.add("step", (message) => {
+  cy.log(`**STEP** ${message}`);
+});
 
 // For apps using [data-cy="..."] attributes (e.g. internal apps, example module)
 Cypress.Commands.add("getByTestId", (id, options = {}) => {

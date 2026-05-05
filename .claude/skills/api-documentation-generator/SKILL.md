@@ -29,4 +29,4 @@ Use this skill to generate or update API layer documentation for a module.
 - Use exact alias names from the config file — do not invent or paraphrase
 - Every code example must be runnable — no placeholder comments
 - Document only what exists — do not describe future or planned entries
-- Output format: Markdown suitable for `docs/api-layer-guide.md` or a module-specific doc file
+- Output format: Markdown suitable for `docs/reference/api-layer-guide.md` or a module-specific doc file

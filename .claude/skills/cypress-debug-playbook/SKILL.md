@@ -20,7 +20,7 @@ Use this skill to trace the root cause of a Cypress test failure systematically.
 ## Failure Classification Table
 
 | Category | Indicators |
-|---|---|
+| -------- | ---------- |
 | `SELECTOR_STALE` | `cy.get()` timeout, element not in DOM |
 | `API_ALIAS_MISMATCH` | `cy.apiWait()` timeout, intercept never matched |
 | `INTERCEPT_ORDER` | Race condition — API returned before intercept registered |

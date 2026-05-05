@@ -1,10 +1,12 @@
+// @no-ensureAuthenticated — saucedemo uses cy.loginSaucedemo() (cy.session-based) as its auth mechanism.
+
 /**
  * @fileoverview Saucedemo smoke tests — real-world demo of the command-first pattern.
  *
  * Target: https://www.saucedemo.com  (public Sauce Labs demo site)
  *
  * Architecture rules enforced:
- *   ✅ cy.loginSaucedemo() in before() — session cached via cy.session()
+ *   ✅ cy.loginSaucedemo() in beforeEach() — session cached via cy.session()
  *   ✅ cy.visitInventory() in beforeEach() — clean state per test
  *   ✅ All selectors via SAUCEDEMO_UI config — zero hardcoded selectors
  *   ✅ All routes via ROUTES.SAUCEDEMO constants — zero hardcoded URLs

@@ -20,7 +20,7 @@
     "cy:run:smoke": "cypress run --spec 'cypress/tests/**/smoke/**/*.cy.js'",
     "cy:run:e2e": "cypress run --spec 'cypress/tests/**/e2e/**/*.cy.js'",
     "cy:run:saucedemo": "cypress run --spec 'cypress/tests/saucedemo/**/*.cy.js'",
-    "cy:run:tag": "cypress run --env grepTags=${TAG}",
+    "cy:run:tag": "cypress run",
     "cy:run:headed": "cypress run --headed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

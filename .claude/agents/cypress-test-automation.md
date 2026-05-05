@@ -38,7 +38,7 @@ Config → Custom Commands → Tests. This is the only accepted pattern.
 ## API Config Pattern
 
 ```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 
 export const MODULE_API = Object.freeze({
   LIST: Object.freeze({

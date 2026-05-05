@@ -47,7 +47,7 @@ beforeEach(() => {
 Every API config entry is a frozen object with four required fields:
 
 ```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 
 export const PAYMENTS_API = Object.freeze({
   LIST: Object.freeze({
@@ -208,6 +208,6 @@ The framework ships with three path aliases for clean imports:
 
 ```javascript
 import { PAYMENTS_API } from "@configs/api/modules/payments/payments.api";
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 import paymentData from "@fixtures/payments.json";
 ```

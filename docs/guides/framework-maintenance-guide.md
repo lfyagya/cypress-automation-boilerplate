@@ -19,7 +19,7 @@ A module is one feature area of your application — payments, invoices, users, 
 Create `cypress/configs/api/modules/[name]/[name].api.js`:
 
 ```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 
 export const PAYMENTS_API = Object.freeze({
   LIST: Object.freeze({
@@ -85,7 +85,7 @@ export const ROUTES = Object.freeze({
 
 Create `cypress/support/commands/modules/[name].commands.js`.
 
-See [support-commands-instructions.md](support-commands-instructions.md) for the exact step-by-step pattern. Every command file follows the same structure: intercept command first, visit command second, interaction commands third, assertion commands last.
+See [support-commands-instructions.md](../guides/support-commands-instructions.md) for the exact step-by-step pattern. Every command file follows the same structure: intercept command first, visit command second, interaction commands third, assertion commands last.
 
 ### Step 5 — Register the Command File
 

@@ -63,9 +63,9 @@ Open `cypress.env.json` and fill in your app's values:
 | ---- | ------- | ------- |
 | `cypress.env.json` | Local secrets | Never |
 | `cypress.env.example.json` | Template with placeholder values | Yes |
-| `cypress/config/cypress.env.dev.json` | Dev environment config | Yes |
-| `cypress/config/cypress.env.qa.json` | QA environment config | Yes |
-| `cypress/config/cypress.env.prod.json` | Production environment config | Yes |
+| `cypress/environments/cypress.env.dev.json` | Dev environment config | Yes |
+| `cypress/environments/cypress.env.qa.json` | QA environment config | Yes |
+| `cypress/environments/cypress.env.prod.json` | Production environment config — use CI secrets for credentials | Yes |
 
 ---
 
@@ -87,16 +87,26 @@ In the Cypress runner, select **saucedemo-smoke.cy.js** and run it. All tests sh
 
 ## Step 4 — Understand the 3-Layer Pattern
 
-Before writing any code, open the reference module and read through each file:
+The boilerplate ships two reference modules. Read both.
+
+**`saucedemo/` — UI-only pattern reference** (saucedemo.com has no real API layer):
 
 ```text
 cypress/configs/ui/modules/saucedemo/saucedemo.ui.js     ← Layer 1: selectors
-cypress/configs/api/modules/saucedemo/saucedemo.api.js   ← Layer 1: API intercepts
 cypress/support/commands/modules/saucedemo.commands.js   ← Layer 2: commands
 cypress/tests/saucedemo/smoke/saucedemo-smoke.cy.js      ← Layer 3: spec
 ```
 
-Notice:
+**`example/` — full 3-layer pattern reference** (includes API intercept config):
+
+```text
+cypress/configs/ui/modules/example/example.ui.js         ← Layer 1: selectors
+cypress/configs/api/modules/example/example.api.js       ← Layer 1: API intercepts
+cypress/support/commands/modules/example.commands.js     ← Layer 2: commands
+cypress/tests/example/smoke/example-smoke.cy.js          ← Layer 3: spec
+```
+
+Notice in both:
 
 - The spec file only calls `cy.*` commands. It contains no selectors, no URLs, no logic.
 - The command file imports from the config files. It never hardcodes a selector or URL.
@@ -104,7 +114,7 @@ Notice:
 
 This is the pattern you will follow for every module you write.
 
-> Full explanation of why: [docs/framework-standards.md](framework-standards.md)
+> Full explanation of why: [docs/reference/framework-standards.md](../reference/framework-standards.md)
 
 ---
 
@@ -161,7 +171,7 @@ Then follow the 6-step checklist:
 Create `cypress/configs/api/modules/[yourmodule]/[yourmodule].api.js`:
 
 ```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 
 export const YOURMODULE_API = Object.freeze({
   LIST: Object.freeze({
@@ -280,8 +290,8 @@ If it fails, use the `cypress-bug-hunter` agent or `/cypress-debug-playbook` ski
 
 | What | Where |
 | ---- | ----- |
-| Understand the architecture rules deeply | [docs/framework-standards.md](framework-standards.md) |
-| Add more endpoints to your module | [docs/framework-maintenance-guide.md](framework-maintenance-guide.md) |
-| Learn the full API engine | [docs/api-layer-guide.md](api-layer-guide.md) |
-| Write better commands | [docs/support-commands-instructions.md](support-commands-instructions.md) |
-| Use AI tools effectively | [docs/prompting-guide.md](prompting-guide.md) |
+| Understand the architecture rules deeply | [docs/reference/framework-standards.md](../reference/framework-standards.md) |
+| Add more endpoints to your module | [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md) |
+| Learn the full API engine | [docs/reference/api-layer-guide.md](../reference/api-layer-guide.md) |
+| Write better commands | [docs/guides/support-commands-instructions.md](../guides/support-commands-instructions.md) |
+| Use AI tools effectively | [docs/guides/prompting-guide.md](../guides/prompting-guide.md) |

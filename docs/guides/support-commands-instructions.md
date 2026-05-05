@@ -206,7 +206,8 @@ These are already registered and available in all specs and commands:
 | `cy.getByTestId(id)` | Shorthand for `cy.get('[data-cy="id"]')` |
 | `cy.getByDataTest(id)` | Shorthand for `cy.get('[data-test="id"]')` |
 | `cy.step(message)` | Logs a labelled step to the Cypress command log |
-| `cy.apiIntercept(config, key)` | Registers one API intercept |
+| `cy.apiIntercept(config, key)` | Registers one API intercept by key |
+| `cy.apiInterceptAll(config)` | Registers all intercepts in an API config at once |
 | `cy.apiWait(alias)` | Waits for a registered intercept |
 | `cy.apiWaitAll(aliases)` | Waits for multiple intercepts simultaneously |
 | `cy.apiStub(config, key, response)` | Returns a mocked response |

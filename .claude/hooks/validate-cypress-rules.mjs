@@ -1,141 +1,87 @@
 #!/usr/bin/env node
+/**
+ * Dual-mode Cypress rule validator.
+ *
+ * Claude Code hook mode (default — reads stdin):
+ *   Receives a PostToolUse JSON event and checks the file just written/edited.
+ *
+ * CI mode (--base-ref <ref>):
+ *   Diffs HEAD against origin/<ref>, reads every changed Cypress file from disk,
+ *   and exits non-zero when violations are found.
+ *
+ *   Usage: node validate-cypress-rules.mjs --base-ref main
+ */
+
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { toPosix, loadAllowlist, scanContent } from "./shared-rules.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..", "..");
 const allowlistPath = path.resolve(__dirname, "cypress-hook-allowlist.json");
 
-// Matches any file inside the cypress/ folder at the repo root
-const TARGET_FILE_RE = /cypress[\\/].*\.(cy\.js|commands\.js|js)$/i;
+// ── Detect mode ──────────────────────────────────────────────────────────────
 
-function toPosix(p) {
-  return p.replaceAll("\\", "/");
-}
+const baseRefIndex = process.argv.indexOf("--base-ref");
+const ciMode = baseRefIndex !== -1;
 
-function loadAllowlist() {
+if (ciMode) {
+  // ── CI mode ──────────────────────────────────────────────────────────────
+  const baseRef = process.argv[baseRefIndex + 1];
+  if (!baseRef) {
+    console.error("Usage: node validate-cypress-rules.mjs --base-ref <ref>");
+    process.exit(1);
+  }
+
+  let changedFiles;
   try {
-    const raw = JSON.parse(fs.readFileSync(allowlistPath, "utf8"));
-    return {
-      selectors: new Set((raw.selectors || []).map((s) => String(s).trim())),
-      routes: new Set((raw.routes || []).map((s) => String(s).trim())),
-      endpoints: new Set((raw.endpoints || []).map((s) => String(s).trim())),
-    };
-  } catch {
-    return {
-      selectors: new Set(["body", "html"]),
-      routes: new Set(["/"]),
-      endpoints: new Set(),
-    };
-  }
-}
-
-function isAllowedLiteral(value, allowSet, ignoreCase = false) {
-  const literal = String(value || "").trim();
-  if (!literal) return false;
-  if (allowSet.has(literal)) return true;
-  if (!ignoreCase) return false;
-  const lower = literal.toLowerCase();
-  for (const allowed of allowSet) {
-    if (String(allowed).toLowerCase() === lower) return true;
-  }
-  return false;
-}
-
-function lineNumberForIndex(text, index) {
-  return text.slice(0, index).split(/\r?\n/).length;
-}
-
-function scanForRegex(violations, filePath, text, regex, messageBuilder) {
-  let match;
-  while ((match = regex.exec(text)) !== null) {
-    const lineNumber = lineNumberForIndex(text, match.index);
-    const message =
-      typeof messageBuilder === "function" ? messageBuilder(match) : messageBuilder;
-    if (!message) continue;
-    violations.push({ filePath, lineNumber, message });
-  }
-}
-
-function scanContent(filePath, content, allowlist) {
-  const violations = [];
-  const normalized = toPosix(path.relative(repoRoot, filePath));
-
-  if (!TARGET_FILE_RE.test(normalized)) return violations;
-
-  scanForRegex(
-    violations, normalized, content,
-    /\bcy\.wait\(\s*\d+\s*\)/g,
-    "Hard wait detected. Replace with cy.apiWait(...) or a deterministic state-based wait.",
-  );
-
-  scanForRegex(
-    violations, normalized, content,
-    /from\s+['"][^'"]*\.actions\.js['"]/g,
-    "Action class import detected. Command-first architecture forbids *.actions.js dependencies.",
-  );
-  scanForRegex(
-    violations, normalized, content,
-    /from\s+['"][^'"]*(page-obj|pageobject|page-object)[^'"]*['"]/gi,
-    "Page-object import detected. Command-first architecture forbids page-object dependencies.",
-  );
-
-  if (/\.(cy\.js|commands\.js)$/i.test(normalized)) {
-    scanForRegex(
-      violations, normalized, content,
-      /\bcy\.(get|find)\(\s*['"](?!@)([^'"]+)['"]\s*\)/g,
-      (m) => {
-        const selector = String(m[2] || "").trim();
-        if (isAllowedLiteral(selector, allowlist.selectors, true)) return null;
-        return `Hardcoded selector in cy.${m[1]}('${selector}'). Use config constants from cypress/configs/ui/**.`;
-      },
+    const diffOutput = execSync(
+      `git diff --name-only --diff-filter=ACM origin/${baseRef}...HEAD`,
+      { cwd: repoRoot, encoding: "utf8" },
     );
+    changedFiles = diffOutput.split(/\r?\n/).filter(Boolean);
+  } catch (err) {
+    console.error(`[CI] git diff failed: ${err.message}`);
+    process.exit(1);
   }
 
-  if (/\.(cy\.js|commands\.js)$/i.test(normalized)) {
-    scanForRegex(
-      violations, normalized, content,
-      /\bcy\.visit\(\s*['"]([^'"]+)['"]\s*\)/g,
-      (m) => {
-        const route = String(m[1] || "").trim();
-        const isLiteral = route.startsWith("/") || /^https?:\/\//i.test(route);
-        if (!isLiteral || isAllowedLiteral(route, allowlist.routes)) return null;
-        return `Hardcoded route '${route}' in cy.visit(...). Use route constants from cypress/configs/app/routes.js.`;
-      },
-    );
+  if (changedFiles.length === 0) {
+    console.log("[CI] No changed files — nothing to check.");
+    process.exit(0);
   }
 
-  if (/cypress[\\/]tests[\\/].*\.cy\.js$/i.test(normalized)) {
-    const requiresAuth = !/unauth|public|health/i.test(normalized);
-    if (requiresAuth && !/cy\.ensureAuthenticated\(/.test(content)) {
-      violations.push({
-        filePath: normalized,
-        lineNumber: 1,
-        message:
-          "Missing cy.ensureAuthenticated() in auth-required test file. Add it in beforeEach().",
-      });
+  const allowlist = loadAllowlist(allowlistPath);
+  const allViolations = [];
+
+  for (const relFile of changedFiles) {
+    const absPath = path.resolve(repoRoot, relFile);
+    let content;
+    try {
+      content = fs.readFileSync(absPath, "utf8");
+    } catch {
+      continue; // file deleted between diff and read — skip
     }
+    const violations = scanContent(absPath, content, allowlist, repoRoot);
+    allViolations.push(...violations);
   }
 
-  if (/cypress[\\/]tests[\\/].*[\\/]smoke[\\/].*\.cy\.js$/i.test(normalized)) {
-    scanForRegex(
-      violations, normalized, content,
-      /\bcy\.request\(\s*['"](POST|PUT|PATCH|DELETE)['"]/gi,
-      "Write request in smoke suite. Smoke tests must remain read-only.",
-    );
-    scanForRegex(
-      violations, normalized, content,
-      /\bmethod\s*:\s*['"](POST|PUT|PATCH|DELETE)['"]/gi,
-      "Write HTTP method in smoke suite. Smoke tests must remain read-only.",
-    );
+  if (allViolations.length === 0) {
+    console.log("[CI] All Cypress rule checks passed.");
+    process.exit(0);
   }
 
-  return violations;
-}
-
-async function main() {
+  console.error("");
+  console.error("❌ [CI] Cypress rule violations detected:");
+  for (const v of allViolations) {
+    console.error(`  ${toPosix(v.filePath)}:${v.lineNumber} -> ${v.message}`);
+  }
+  console.error("");
+  process.exit(1);
+} else {
+  // ── Claude Code hook mode (stdin) ─────────────────────────────────────────
   let raw = "";
   for await (const chunk of process.stdin) raw += chunk;
 
@@ -161,20 +107,18 @@ async function main() {
 
   if (!filePath || !content) process.exit(0);
 
-  const allowlist = loadAllowlist();
-  const violations = scanContent(filePath, content, allowlist);
+  const allowlist = loadAllowlist(allowlistPath);
+  const violations = scanContent(filePath, content, allowlist, repoRoot);
 
   if (violations.length === 0) process.exit(0);
 
   console.error("");
   console.error("❌ [POST-CHECK] Cypress rule violations detected in written file.");
   for (const v of violations) {
-    console.error(`- ${v.filePath}:${v.lineNumber} -> ${v.message}`);
+    console.error(`  ${toPosix(v.filePath)}:${v.lineNumber} -> ${v.message}`);
   }
   console.error("");
   console.error("Correct these violations before committing.");
 
   process.exit(2);
 }
-
-main();

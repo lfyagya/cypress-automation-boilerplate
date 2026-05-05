@@ -97,7 +97,7 @@ If you are forking this boilerplate and setting up CI for the first time, add th
 | `CYPRESS_PASSWORD` | Test user password |
 | `CYPRESS_AUTH_URL` | Auth endpoint path |
 
-See [docs/ci-cd-guide.md](docs/ci-cd-guide.md) for full pipeline setup and AWS CodeBuild adaptation.
+See [docs/guides/ci-cd-guide.md](docs/guides/ci-cd-guide.md) for full pipeline setup and AWS CodeBuild adaptation.
 
 ---
 
@@ -105,11 +105,10 @@ See [docs/ci-cd-guide.md](docs/ci-cd-guide.md) for full pipeline setup and AWS C
 
 | What you need | Where |
 | ------------- | ----- |
-| First time setup | [docs/getting-started.md](docs/getting-started.md) |
-| Joining an existing project | [docs/joining-an-existing-project.md](docs/joining-an-existing-project.md) |
-| Architecture rules and why | [docs/framework-standards.md](docs/framework-standards.md) |
-| Adding or updating modules | [docs/framework-maintenance-guide.md](docs/framework-maintenance-guide.md) |
-| Writing commands | [docs/support-commands-instructions.md](docs/support-commands-instructions.md) |
-| API intercepts | [docs/api-layer-guide.md](docs/api-layer-guide.md) |
-| AI prompting | [docs/prompting-guide.md](docs/prompting-guide.md) |
-| CI/CD pipeline | [docs/ci-cd-guide.md](docs/ci-cd-guide.md) |
+| First time setup | [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md) |
+| Joining an existing project | [docs/onboarding/joining-an-existing-project.md](docs/onboarding/joining-an-existing-project.md) |
+| Architecture rules and why | [docs/reference/framework-standards.md](docs/reference/framework-standards.md) |
+| Why configs/tests/commands are split | [docs/reference/test-organization.md](docs/reference/test-organization.md) |
+| Adding or updating modules | [docs/guides/framework-maintenance-guide.md](docs/guides/framework-maintenance-guide.md) |
+| Writing commands | [docs/guides/support-commands-instructions.md](docs/guides/support-commands-instructions.md) |
+| API intercepts | [docs/reference/api-layer-guide.md](docs/reference/api-layer-guide.md) |

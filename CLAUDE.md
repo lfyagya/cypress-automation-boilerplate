@@ -8,6 +8,7 @@
 ## Who is this for?
 
 Any engineering team that:
+
 - Is starting a new web app and needs a maintainable test automation foundation
 - Is migrating from page-object patterns or scattered test files
 - Wants AI assistance (Claude Code + GitHub Copilot) wired into the framework from the start
@@ -45,30 +46,39 @@ A three-layer Cypress framework with a single, non-negotiable architecture:
 
 ### Agents — multi-step, reasoning-heavy tasks
 
+Agents spawn an independent context and reason across multiple steps. Use them for tasks that require investigation, judgment, or multi-file changes.
+
+**Daily development** — these run on nearly every feature branch:
+
+| Situation                             | Agent                          |
+| ------------------------------------- | ------------------------------ |
+| Writing a new test or command         | `cypress-test-automation`      |
+| Reviewing code before merge           | `cypress-reviewer`             |
+| Debugging a failing test locally      | `cypress-bug-hunter`           |
+| Auditing for flakiness or slowness    | `cypress-performance-auditor`  |
+
+**Workflow / release** — these run at specific workflow gates:
+
 | Situation                             | Agent                       |
 | ------------------------------------- | --------------------------- |
-| Writing a new test or command         | `cypress-test-automation`   |
-| Reviewing code before merge           | `cypress-reviewer`          |
-| Investigating a CI run failure        | `cypress-cloud-investigator`|
-| Debugging a failing test locally      | `cypress-bug-hunter`        |
-| Auditing for flakiness or slowness    | `cypress-performance-auditor` |
 | Full QA gate before opening a PR      | `pre-merge-qa-gate`         |
-| Writing framework or API docs         | `documentation-writer`      |
+| Investigating a CI run failure        | `cypress-cloud-investigator`|
 | Opening a pull request                | `pr-creator`                |
+| Writing framework or API docs         | `documentation-writer`      |
 
 ### Skills — structured single-purpose workflows
 
-| Task                                  | Skill                         |
-| ------------------------------------- | ----------------------------- |
-| Check for duplication before writing  | `/detect-duplication`         |
-| Convert a Jira ticket to a test plan  | `/jira-to-cypress`            |
-| Validate architecture compliance      | `/cypress-architecture-review`|
-| Debug root-cause trace                | `/cypress-debug-playbook`     |
-| Migrate legacy test to command-first  | `/cypress-command-first-migration` |
-| Audit test suite performance          | `/cypress-performance-audit`  |
-| Generate API documentation            | `/api-documentation-generator`|
-| Run full pre-merge QA gate            | `/verification-loop`          |
-| Write regression test after a bug fix | `/ai-regression-testing`      |
+| Task                                  | Skill                               |
+| ------------------------------------- | ----------------------------------- |
+| Check for duplication before writing  | `/detect-duplication`               |
+| Convert a Jira ticket to a test plan  | `/jira-to-cypress`                  |
+| Validate architecture compliance      | `/cypress-architecture-review`      |
+| Debug root-cause trace                | `/cypress-debug-playbook`           |
+| Migrate legacy test to command-first  | `/cypress-command-first-migration`  |
+| Audit test suite performance          | `/cypress-performance-audit`        |
+| Generate API documentation            | `/api-documentation-generator`      |
+| Run full pre-merge QA gate            | `/verification-loop`                |
+| Write regression test after a bug fix | `/ai-regression-testing`            |
 
 ### npm scripts — running tests
 
@@ -84,7 +94,7 @@ A three-layer Cypress framework with a single, non-negotiable architecture:
 
 ## Where does everything live?
 
-```
+```text
 cypress/
 ├── configs/                         ← All pure data — never logic here
 │   ├── app/
@@ -122,17 +132,27 @@ cypress/
             └── [module]-e2e.cy.js
 
 docs/                                ← Read these before writing any code
-├── getting-started.md               ← Setup + first test walkthrough
-├── framework-standards.md           ← Architecture rules + naming conventions
-├── api-layer-guide.md               ← API engine, intercepts, schema validation
-├── framework-maintenance-guide.md   ← Adding modules, updating configs
-└── support-commands-instructions.md ← Command authoring guide
+├── README.md                        ← Navigation hub — who goes where
+├── onboarding/                      ← Read once, in order
+│   ├── getting-started.md           ← Setup + first test walkthrough
+│   └── joining-an-existing-project.md ← Mid-project onboarding
+├── guides/                          ← Task-oriented — "how do I do X?"
+│   ├── framework-maintenance-guide.md ← Adding modules, updating configs
+│   ├── support-commands-instructions.md ← Command authoring guide
+│   ├── ci-cd-guide.md               ← Pipeline setup, secrets, reading results
+│   └── prompting-guide.md           ← How to prompt Claude Code and Copilot effectively
+├── reference/                       ← Look-up — rules, standards, API catalogue
+│   ├── framework-standards.md       ← Architecture rules + naming conventions
+│   ├── api-layer-guide.md           ← API engine, intercepts, schema validation
+│   └── test-organization.md         ← Why configs/tests/commands are split this way
+└── decisions/                       ← ADRs — append-only architecture record
+    └── README.md                    ← ADR format guide
 
 .claude/                             ← Claude Code config (auto-enforced)
 ├── settings.json                    ← Hooks + permissions
 ├── hooks/                           ← Automatic rule enforcement on every write
-├── agents/                          ← Claude subagents
-└── commands/                        ← Claude skills (/skill-name)
+├── agents/                          ← Subagents (spawned with Agent tool — multi-step, own context)
+└── skills/                          ← Skills (slash commands — run inline, e.g. /detect-duplication)
 
 .github/                             ← GitHub Copilot config
 ├── copilot-instructions.md          ← Global Copilot context
@@ -145,31 +165,18 @@ docs/                                ← Read these before writing any code
 
 ## Why this architecture?
 
-### Why Config → Commands → Tests?
+- **Selectors in one place** — update a constant in `configs/ui/`, every test that uses it updates automatically. No hunting through 50 spec files.
+- **Commands own all complexity** — specs stay readable; changing a flow means fixing one command, not every test that calls it.
+- **No `cy.wait(number)`** — `cy.apiWait('@alias')` waits for the actual network response, not a guessed duration. Tests pass everywhere, including slow CI.
+- **No page objects** — commands are your page methods, config files are your locator maps, with explicit single-file ownership enforced by hooks. If your team comes from POM, see the [full comparison and migration guide](docs/reference/test-organization.md#part-5--the-pom-question-for-teams-coming-from-page-objects).
 
-**Selectors change.** If a CSS class is renamed in your app, you update one constant in one config file — not every test that uses it. The config layer is the single source of truth.
-
-**Commands are reusable.** A `cy.loginAs('admin')` command is called from 50 tests. If login changes, you fix one command — not 50 tests.
-
-**Tests stay readable.** A spec that reads like `cy.navigateTo('products'); cy.assertProductList()` is self-documenting. A spec with `cy.get('.sidebar ul li:nth-child(2) a').click()` is a maintenance trap.
-
-### Why no page objects?
-
-Page objects duplicate the config layer's purpose with hidden ownership. Their methods accumulate test logic that belongs in commands. Command-first gives you the same abstraction with explicit ownership and no hidden layer.
-
-### Why no `cy.wait(number)`?
-
-Hard waits are lies — they mask timing bugs rather than fixing them. `cy.apiIntercept()` + `cy.apiWait()` wait for the exact API response the test depends on. The test only proceeds when the data is actually there.
-
-### Why AI-powered from day one?
-
-Framework rules are complex and easy to violate. Hooks enforce them automatically. Agents and skills let Claude Code and Copilot reason within the correct architecture without rediscovering the rules each time.
+> Deep dive on all architecture decisions, test scope organization, routes, and command layer design: [docs/reference/test-organization.md](docs/reference/test-organization.md)
 
 ---
 
 ## Non-Negotiable Rules
 
-```
+```text
 NEVER  →  cy.wait(number)              Use cy.apiWait() or .should('be.visible')
 NEVER  →  hardcoded selectors          Use constants from cypress/configs/ui/**
 NEVER  →  hardcoded endpoints/routes   Use constants from cypress/configs/api/** and routes.js
@@ -195,7 +202,7 @@ Hooks in `.claude/hooks/` enforce these automatically on every file write.
 3. **Adapt `cy.ensureAuthenticated()`** in `cypress/support/commands/common/auth.commands.js`
 4. **Add your modules** using the checklist:
 
-```
+```text
 1. API config    → cypress/configs/api/modules/[module]/[module].api.js
 2. UI config     → cypress/configs/ui/modules/[module]/[module].ui.js
 3. Routes        → cypress/configs/app/routes.js
@@ -206,55 +213,9 @@ Hooks in `.claude/hooks/` enforce these automatically on every file write.
 
 ---
 
-## API Config Pattern
-
-Every API config follows this exact shape:
-
-```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
-
-export const MODULE_API = Object.freeze({
-  LIST: Object.freeze({
-    method: "GET",
-    endpoint: "**/api/module/list**",
-    alias: "moduleList",
-    expectedStatus: HTTP_STATUS.OK,
-  }),
-});
-```
-
----
-
-## Agent and Skill Map
-
-| Task                                       | Use This                            |
-| ------------------------------------------ | ----------------------------------- |
-| Write or migrate a test                    | `cypress-test-automation` agent     |
-| Review before merge                        | `cypress-reviewer` agent            |
-| Investigate CI failures from Cypress Cloud | `cypress-cloud-investigator` agent  |
-| Debug a failing test (local/manual)        | `cypress-bug-hunter` agent          |
-| Optimize slow/flaky tests                  | `cypress-performance-auditor` agent |
-| Full QA gate (all checks)                  | `pre-merge-qa-gate` agent           |
-| Write documentation                        | `documentation-writer` agent        |
-| Open a pull request                        | `pr-creator` agent                  |
-
-| Workflow                                        | Skill                              |
-| ----------------------------------------------- | ---------------------------------- |
-| Duplication check before new code               | `detect-duplication`               |
-| Jira ticket to Cypress test plan                | `jira-to-cypress`                  |
-| Migrate legacy action/page-obj to command-first | `cypress-command-first-migration`  |
-| Review architecture compliance                  | `cypress-architecture-review`      |
-| Debug root-cause trace                          | `cypress-debug-playbook`           |
-| Runtime/flake analysis                          | `cypress-performance-audit`        |
-| Generate API docs                               | `api-documentation-generator`      |
-| Pre-merge QA gate (6-phase)                     | `verification-loop`                |
-| Post-bug regression test                        | `ai-regression-testing`            |
-
----
-
 ## Pre-Merge Checklist
 
-```
+```text
 [ ] No hardcoded selectors — all from cypress/configs/ui/**
 [ ] No hardcoded endpoints/routes — all from cypress/configs/api/** and routes.js
 [ ] No new *.actions.js or page-object files
@@ -266,13 +227,3 @@ export const MODULE_API = Object.freeze({
 ```
 
 Run the `pre-merge-qa-gate` agent for a full PASS / PASS_WITH_ACTIONS / BLOCK verdict.
-
----
-
-## Canonical Documentation
-
-- `docs/getting-started.md` — Setup and your first test
-- `docs/framework-standards.md` — Architecture rules and naming conventions
-- `docs/api-layer-guide.md` — API engine, intercepts, schema validation
-- `docs/framework-maintenance-guide.md` — Adding modules, updating configs
-- `docs/support-commands-instructions.md` — Command authoring guide

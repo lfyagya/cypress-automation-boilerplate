@@ -142,7 +142,7 @@ Edit `cypress/support/commands/common/auth.commands.js` — replace the example 
 
 Delete `cypress/tests/example/` and `cypress/tests/saucedemo/` once you have studied the pattern.
 
-> Full walkthrough: [docs/getting-started.md](docs/getting-started.md)
+> Full walkthrough: [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md)
 
 ---
 
@@ -162,7 +162,7 @@ Run `/detect-duplication` first. Check `cypress/configs/` and `cypress/support/c
 **Every API config entry follows this exact shape:**
 
 ```javascript
-import { HTTP_STATUS } from "@support/core/api/status-codes.js";
+import { HTTP_STATUS } from "@core/api/status-codes.js";
 
 export const PAYMENTS_API = Object.freeze({
   LIST: Object.freeze({
@@ -174,7 +174,7 @@ export const PAYMENTS_API = Object.freeze({
 });
 ```
 
-> Full guide: [docs/framework-maintenance-guide.md](docs/framework-maintenance-guide.md)
+> Full guide: [docs/guides/framework-maintenance-guide.md](docs/guides/framework-maintenance-guide.md)
 
 ---
 
@@ -268,7 +268,7 @@ ALWAYS →  data-cy attributes           For all new selectors you add to the ap
 ALWAYS →  apiIntercept before visit    Register intercepts before cy.visit() fires
 ```
 
-> Full rationale: [docs/framework-standards.md](docs/framework-standards.md)
+> Full rationale: [docs/reference/framework-standards.md](docs/reference/framework-standards.md)
 
 ---
 
@@ -291,13 +291,12 @@ ALWAYS →  apiIntercept before visit    Register intercepts before cy.visit() f
 ## Documentation
 
 | Doc | What it covers |
-|-----|---------------|
-| [docs/getting-started.md](docs/getting-started.md) | Step-by-step onboarding — setup, first test, environment config |
-| [docs/joining-an-existing-project.md](docs/joining-an-existing-project.md) | Joining a team that already uses this framework mid-project |
-| [docs/framework-standards.md](docs/framework-standards.md) | Architecture rules, naming conventions, selector strategy |
-| [docs/framework-maintenance-guide.md](docs/framework-maintenance-guide.md) | Adding modules, updating configs, evolving the framework |
-| [docs/api-layer-guide.md](docs/api-layer-guide.md) | API engine, intercepts, aliasing, schema validation |
-| [docs/support-commands-instructions.md](docs/support-commands-instructions.md) | Command authoring guide — patterns, ownership, registration |
-| [docs/prompting-guide.md](docs/prompting-guide.md) | How to prompt Claude Code and Copilot effectively in this framework |
-| [docs/ci-cd-guide.md](docs/ci-cd-guide.md) | Pipeline setup, secrets, reading results, AWS CodeBuild adaptation |
+| --- | -------------- |
+| [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md) | Step-by-step onboarding — setup, first test, environment config |
+| [docs/onboarding/joining-an-existing-project.md](docs/onboarding/joining-an-existing-project.md) | Joining a team that already uses this framework mid-project |
+| [docs/reference/framework-standards.md](docs/reference/framework-standards.md) | Architecture rules, naming conventions, selector strategy |
+| [docs/reference/test-organization.md](docs/reference/test-organization.md) | Why configs/tests/commands are split this way — principles behind every decision |
+| [docs/reference/api-layer-guide.md](docs/reference/api-layer-guide.md) | API engine, intercepts, aliasing, schema validation |
+| [docs/guides/framework-maintenance-guide.md](docs/guides/framework-maintenance-guide.md) | Adding modules, updating configs, evolving the framework |
+| [docs/guides/support-commands-instructions.md](docs/guides/support-commands-instructions.md) | Command authoring guide — patterns, ownership, registration |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution flow, pre-merge checklist, CI secrets setup |
