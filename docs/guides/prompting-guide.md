@@ -8,10 +8,10 @@
 
 Both AI tools are wired into this framework. They serve different purposes.
 
-| Tool | Best for | How to invoke |
-| ---- | -------- | ------------- |
-| **Claude Code** | Multi-step tasks, debugging, architecture decisions, writing docs | Agents (`cypress-test-automation`, etc.) and Skills (`/detect-duplication`, etc.) |
-| **GitHub Copilot** | Code completion, generating a single file, quick Q&A in chat | `@agent-name` in Copilot Chat, or inline completions |
+| Tool               | Best for                                                          | How to invoke                                                                     |
+| ------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Claude Code**    | Multi-step tasks, debugging, architecture decisions, writing docs | Agents (`cypress-test-automation`, etc.) and Skills (`/detect-duplication`, etc.) |
+| **GitHub Copilot** | Code completion, generating a single file, quick Q&A in chat      | `@agent-name` in Copilot Chat, or inline completions                              |
 
 When a task spans multiple files or requires reasoning about the framework (e.g. "write a full module for invoices"), use a **Claude Code agent**. When you need a single file generated or a quick question answered, Copilot Chat is faster.
 
@@ -145,15 +145,15 @@ a token-based app that stores auth in localStorage instead of cookies.
 
 ## What Makes a Good Prompt
 
-| Principle | Bad | Good |
-| --------- | --- | ---- |
-| **Scope** | "Fix this" | "The intercept in `visitPayments` fires after `cy.visit()` — move it before" |
-| **Reference files** | "Make a config" | "Make a config following the shape in `saucedemo.api.js`" |
-| **Desired output** | "Help me" | "Generate only the command file — I already have the API and UI configs" |
-| **Constraints** | _(none stated)_ | "No `cy.wait(number)`, use `[data-cy]` selectors, command-first pattern only" |
-| **Context** | "It's broken" | "Test: `payments-smoke.cy.js`, error: `element not found [data-cy='payments-table']`, recent change: added auth redirect" |
+| Principle           | Bad             | Good                                                                                                                      |
+| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Scope**           | "Fix this"      | "The intercept in `visitPayments` fires after `cy.visit()` — move it before"                                              |
+| **Reference files** | "Make a config" | "Make a config following the shape in `saucedemo.api.js`"                                                                 |
+| **Desired output**  | "Help me"       | "Generate only the command file — I already have the API and UI configs"                                                  |
+| **Constraints**     | _(none stated)_ | "No `cy.wait(number)`, use `[data-cy]` selectors, command-first pattern only"                                             |
+| **Context**         | "It's broken"   | "Test: `payments-smoke.cy.js`, error: `element not found [data-cy='payments-table']`, recent change: added auth redirect" |
 
-The framework rules (no `cy.wait(number)`, `[data-cy]` selectors only, no page objects) are enforced automatically by `.claude/hooks/` — you do not need to repeat them in every prompt. They are always on.
+The framework rules (no `cy.wait(number)`, `[data-cy]` selectors only, no page objects) are enforced automatically by `.claude/hooks/` — you do not need to repeat them in every prompt. They are always on. See [guides/hooks-explainer.md](hooks-explainer.md) for what each hook does and when it fires.
 
 ---
 
@@ -205,28 +205,28 @@ Module: [which module this belongs to]
 
 Each agent is defined in `.claude/agents/` and has a specific role. Invoke via the agent name in Claude Code:
 
-| Agent | Role |
-| ----- | ---- |
-| `cypress-test-automation` | Writes new tests, commands, and full modules |
-| `cypress-cloud-investigator` | Investigates Cypress Cloud CI failures |
-| `cypress-bug-hunter` | Debugs a failing test with root-cause analysis |
-| `cypress-reviewer` | Pre-merge code review |
-| `cypress-performance-auditor` | Flakiness and slowness audit |
-| `pre-merge-qa-gate` | Full 6-phase QA gate |
-| `documentation-writer` | Writes or updates framework docs |
-| `pr-creator` | Opens a PR with a generated description |
+| Agent                         | Role                                           |
+| ----------------------------- | ---------------------------------------------- |
+| `cypress-test-automation`     | Writes new tests, commands, and full modules   |
+| `cypress-cloud-investigator`  | Investigates Cypress Cloud CI failures         |
+| `cypress-bug-hunter`          | Debugs a failing test with root-cause analysis |
+| `cypress-reviewer`            | Pre-merge code review                          |
+| `cypress-performance-auditor` | Flakiness and slowness audit                   |
+| `pre-merge-qa-gate`           | Full 6-phase QA gate                           |
+| `documentation-writer`        | Writes or updates framework docs               |
+| `pr-creator`                  | Opens a PR with a generated description        |
 
 ## How GitHub Copilot Agents Work in This Repo
 
 Each agent is defined in `.github/agents/` and invoked with `@agent-name` in Copilot Chat:
 
-| Agent | Role |
-| ----- | ---- |
-| `@cypress-test-automation` | Writing new tests or commands |
-| `@cypress-reviewer` | Pre-merge architecture check |
-| `@cypress-bug-hunter` | Root cause analysis |
-| `@cypress-performance-auditor` | CI time and flakiness audit |
-| `@documentation-writer` | Writing or updating framework docs |
-| `@pre-merge-qa-gate` | Full QA gate |
+| Agent                          | Role                               |
+| ------------------------------ | ---------------------------------- |
+| `@cypress-test-automation`     | Writing new tests or commands      |
+| `@cypress-reviewer`            | Pre-merge architecture check       |
+| `@cypress-bug-hunter`          | Root cause analysis                |
+| `@cypress-performance-auditor` | CI time and flakiness audit        |
+| `@documentation-writer`        | Writing or updating framework docs |
+| `@pre-merge-qa-gate`           | Full QA gate                       |
 
 The `.github/copilot-instructions.md` file applies framework rules (no page objects, no `cy.wait(number)`, `[data-cy]` selectors only) to every Copilot response automatically. You do not need to restate them.

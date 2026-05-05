@@ -56,14 +56,14 @@ grep -r "Cypress.Commands.add" cypress/support/commands/modules/payments.command
 
 Common commands available everywhere (no import needed):
 
-| Command | What it does |
-| ------- | ------------ |
-| `cy.ensureAuthenticated()` | Session-cached login — use in every `beforeEach()` |
-| `cy.getByTestId('id')` | `cy.get('[data-cy="id"]')` shorthand |
-| `cy.step('message')` | Labelled step in Cypress command log |
-| `cy.apiIntercept(config, key)` | Register one API intercept |
-| `cy.apiWait('@alias')` | Wait for a registered intercept |
-| `cy.apiStub(config, key, response)` | Return a mocked response |
+| Command                             | What it does                                       |
+| ----------------------------------- | -------------------------------------------------- |
+| `cy.ensureAuthenticated()`          | Session-cached login — use in every `beforeEach()` |
+| `cy.getByTestId('id')`              | `cy.get('[data-cy="id"]')` shorthand               |
+| `cy.step('message')`                | Labelled step in Cypress command log               |
+| `cy.apiIntercept(config, key)`      | Register one API intercept                         |
+| `cy.apiWait('@alias')`              | Wait for a registered intercept                    |
+| `cy.apiStub(config, key, response)` | Return a mocked response                           |
 
 ---
 
@@ -117,7 +117,7 @@ describe("Payments — Smoke", { tags: ["@payments", "@smoke"] }, () => {
 
   it("shows empty state when no payments exist", () => {
     cy.visitPayments();
-    cy.assertPaymentsEmpty();  // command already exists
+    cy.assertPaymentsEmpty(); // command already exists
   });
 });
 ```
@@ -198,11 +198,13 @@ If CI blocks your PR, read the error output: it will name the exact file and lin
 
 ## Getting Help
 
-| Problem | Where to go |
-| ------- | ----------- |
-| Test is failing | `cypress-bug-hunter` agent or `/cypress-debug-playbook` |
-| Not sure if something already exists | `/detect-duplication` skill |
-| Need to understand the architecture | [docs/reference/framework-standards.md](../reference/framework-standards.md) |
-| Need to add a new module | [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md) |
-| CI pipeline failing | [docs/guides/ci-cd-guide.md](../guides/ci-cd-guide.md) |
-| Command doesn't exist yet | [docs/guides/support-commands-instructions.md](../guides/support-commands-instructions.md) |
+| Problem                                                        | Where to go                                                                                |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Test is failing                                                | `cypress-bug-hunter` agent or `/cypress-debug-playbook`                                    |
+| Not sure if something already exists                           | `/detect-duplication` skill                                                                |
+| Need to understand the architecture                            | [docs/reference/framework-standards.md](../reference/framework-standards.md)               |
+| Need to add a new module                                       | [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md)     |
+| CI pipeline failing                                            | [docs/guides/ci-cd-guide.md](../guides/ci-cd-guide.md)                                     |
+| Command doesn't exist yet                                      | [docs/guides/support-commands-instructions.md](../guides/support-commands-instructions.md) |
+| Confused about hooks (what they are, when they fire)           | [docs/guides/hooks-explainer.md](../guides/hooks-explainer.md)                             |
+| Unsure how AI agents and humans use this framework differently | [docs/reference/two-views.md](../reference/two-views.md)                                   |

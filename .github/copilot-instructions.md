@@ -23,8 +23,10 @@ Preferred model: Claude Sonnet 4.6
 - `/docs/reference/framework-standards.md`
 - `/docs/reference/api-layer-guide.md`
 - `/docs/reference/test-organization.md`
+- `/docs/reference/two-views.md`
 - `/docs/guides/framework-maintenance-guide.md`
 - `/docs/guides/support-commands-instructions.md`
+- `/docs/guides/hooks-explainer.md`
 
 ## Copilot Operating Reference
 

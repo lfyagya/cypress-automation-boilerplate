@@ -12,6 +12,7 @@ Team workflow for using GitHub Copilot consistently in this repository.
 - Reusable skills: `/.github/skills/*/SKILL.md`
 - Repeatable prompts: `/.github/prompts/*.prompt.md`
 - Preferred model: **Claude Sonnet 4.6**
+- Human vs. AI agent view of the framework: `/docs/reference/two-views.md`
 
 ## 2) Mode Selection (Default Workflow)
 

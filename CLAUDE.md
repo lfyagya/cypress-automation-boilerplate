@@ -139,12 +139,14 @@ docs/                                ← Read these before writing any code
 ├── guides/                          ← Task-oriented — "how do I do X?"
 │   ├── framework-maintenance-guide.md ← Adding modules, updating configs
 │   ├── support-commands-instructions.md ← Command authoring guide
+│   ├── hooks-explainer.md           ← What hooks are, why they exist, when they fire
 │   ├── ci-cd-guide.md               ← Pipeline setup, secrets, reading results
 │   └── prompting-guide.md           ← How to prompt Claude Code and Copilot effectively
 ├── reference/                       ← Look-up — rules, standards, API catalogue
 │   ├── framework-standards.md       ← Architecture rules + naming conventions
 │   ├── api-layer-guide.md           ← API engine, intercepts, schema validation
-│   └── test-organization.md         ← Why configs/tests/commands are split this way
+│   ├── test-organization.md         ← Why configs/tests/commands are split this way
+│   └── two-views.md                 ← Human engineer view vs. AI agentic view
 └── decisions/                       ← ADRs — append-only architecture record
     └── README.md                    ← ADR format guide
 
