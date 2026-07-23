@@ -11,12 +11,6 @@ const DASHBOARD = Object.freeze({
   ROOT: "/dashboard",
 });
 
-const EXAMPLE = Object.freeze({
-  ROOT: "/example",
-  DETAIL: (id) => `/example/${id}`,
-  CREATE: "/example/new",
-});
-
 // ─── Saucedemo (https://www.saucedemo.com) ───────────────────────────────────
 const SAUCEDEMO = Object.freeze({
   LOGIN: "/",
@@ -30,7 +24,6 @@ const SAUCEDEMO = Object.freeze({
 
 export const ROUTES = Object.freeze({
   DASHBOARD,
-  EXAMPLE,
   SAUCEDEMO,
 });
 

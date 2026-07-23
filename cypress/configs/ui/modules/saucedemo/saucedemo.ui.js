@@ -1,7 +1,6 @@
 /**
  * @fileoverview Saucedemo (https://www.saucedemo.com) UI selector constants.
  *
- * All selectors verified against live DOM via agentic browser inspection (March 2026).
  * Saucedemo uses [data-test="..."] attributes throughout — prefer these over CSS classes.
  *
  * 6 products on the inventory page (sorted A→Z by default):

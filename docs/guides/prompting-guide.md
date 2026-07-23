@@ -8,10 +8,10 @@
 
 Both AI tools are wired into this framework. They serve different purposes.
 
-| Tool               | Best for                                                          | How to invoke                                                                     |
-| ------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Claude Code**    | Multi-step tasks, debugging, architecture decisions, writing docs | Agents (`cypress-test-automation`, etc.) and Skills (`/detect-duplication`, etc.) |
-| **GitHub Copilot** | Code completion, generating a single file, quick Q&A in chat      | `@agent-name` in Copilot Chat, or inline completions                              |
+| Tool               | Best for                                                                                | How to invoke                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Claude Code**    | Writing/fixing tests (Skills), multi-step debugging and architecture decisions (Agents) | Skills (`cypress-author`, `cypress-docs`, `cypress-explain`) and Agents (`pre-merge-qa-gate`, etc.) |
+| **GitHub Copilot** | Code completion, generating a single file, quick Q&A in chat                            | `@agent-name` in Copilot Chat, or inline completions                                                |
 
 When a task spans multiple files or requires reasoning about the framework (e.g. "write a full module for invoices"), use a **Claude Code agent**. When you need a single file generated or a quick question answered, Copilot Chat is faster.
 
@@ -33,7 +33,7 @@ flowchart TD
     T1 --> A1["Zero-Shot\nAsk directly, no examples needed"]
     T2 --> A2["Few-Shot\nProvide 1-2 examples first, then ask"]
     T3 --> A3["Chain-of-Thought\nAsk it to reason step by step"]
-    T4 --> A4["Prompt Chaining\nUse /scaffold-module or a Claude Code agent"]
+    T4 --> A4["Prompt Chaining\nUse cypress-author to scaffold the full module"]
     T5 --> A5["Self-Consistency\nGenerate twice, compare, pick the best"]
     T6 --> A6["Generated Knowledge\nAsk for a brain dump first, then apply it"]
 ```
@@ -98,10 +98,10 @@ Diagnose the most likely cause and suggest a fix.
 
 ### 4. Prompt Chaining
 
-Break a large task into a sequence — the output of each step feeds the next. Use Claude Code agents for this — they handle the chain automatically.
+Break a large task into a sequence — the output of each step feeds the next. Use the `cypress-author` skill for this — it handles the chain automatically.
 
 ```text
-cypress-test-automation agent:
+cypress-author:
 
 Scaffold a full module for "invoices".
 - Base API path: /api/v1/invoices
@@ -110,7 +110,7 @@ Scaffold a full module for "invoices".
 - Coverage: smoke tests only
 ```
 
-The agent will generate API config → UI config → routes → commands → spec in order, following the framework pattern.
+`cypress-author` will generate API config → UI config → routes → commands → spec in order, following the framework pattern.
 
 ---
 
@@ -162,7 +162,7 @@ The framework rules (no `cy.wait(number)`, `[data-cy]` selectors only, no page o
 ### Scaffold a full module
 
 ```text
-cypress-test-automation agent:
+cypress-author:
 
 Module name: [name]
 API base path: [/api/v1/name]
@@ -174,7 +174,7 @@ Coverage: [smoke | e2e | both]
 ### Debug a failing test
 
 ```text
-/cypress-debug-playbook
+cypress-bug-hunter agent:
 
 Failing spec: [file path and it() description]
 Error message: [paste exact error]
@@ -184,49 +184,35 @@ Recent changes: [what changed before this started failing]
 ### Validate architecture before PR
 
 ```text
-/cypress-architecture-review
+pre-merge-qa-gate agent:
 
 Files to check:
 [paste file paths or contents]
 ```
 
-### Convert a Jira ticket
-
-```text
-/jira-to-cypress
-
-Ticket: [AC text or paste the acceptance criteria]
-Module: [which module this belongs to]
-```
-
 ---
+
+## Skills — Primary, Use These First
+
+`cypress-author`, `cypress-docs`, and `cypress-explain` are the official [Cypress AI Toolkit](https://github.com/cypress-io/ai-toolkit) skills, symlinked into `.claude/skills/`. They are the primary way to write/fix tests, look up documented Cypress behavior, and explain existing tests.
 
 ## How Claude Code Agents Work in This Repo
 
-Each agent is defined in `.claude/agents/` and has a specific role. Invoke via the agent name in Claude Code:
+Each agent is defined in `.claude/agents/` and has a specific role. Use an agent when the task needs multi-file investigation or a workflow gate — not for authoring a test.
 
-| Agent                         | Role                                           |
-| ----------------------------- | ---------------------------------------------- |
-| `cypress-test-automation`     | Writes new tests, commands, and full modules   |
-| `cypress-cloud-investigator`  | Investigates Cypress Cloud CI failures         |
-| `cypress-bug-hunter`          | Debugs a failing test with root-cause analysis |
-| `cypress-reviewer`            | Pre-merge code review                          |
-| `cypress-performance-auditor` | Flakiness and slowness audit                   |
-| `pre-merge-qa-gate`           | Full 6-phase QA gate                           |
-| `documentation-writer`        | Writes or updates framework docs               |
-| `pr-creator`                  | Opens a PR with a generated description        |
+| Agent                | Role                                           |
+| -------------------- | ---------------------------------------------- |
+| `cypress-bug-hunter` | Debugs a failing test with root-cause analysis |
+| `pre-merge-qa-gate`  | Pre-merge code review + full 6-phase QA gate   |
+| `pr-creator`         | Opens a PR with a generated description        |
 
 ## How GitHub Copilot Agents Work in This Repo
 
-Each agent is defined in `.github/agents/` and invoked with `@agent-name` in Copilot Chat:
+Each agent is defined in `.github/agents/` and invoked with `@agent-name` in Copilot Chat. `.github/skills/` mirrors the same `cypress-author` / `cypress-docs` / `cypress-explain` primary skills.
 
-| Agent                          | Role                               |
-| ------------------------------ | ---------------------------------- |
-| `@cypress-test-automation`     | Writing new tests or commands      |
-| `@cypress-reviewer`            | Pre-merge architecture check       |
-| `@cypress-bug-hunter`          | Root cause analysis                |
-| `@cypress-performance-auditor` | CI time and flakiness audit        |
-| `@documentation-writer`        | Writing or updating framework docs |
-| `@pre-merge-qa-gate`           | Full QA gate                       |
+| Agent                 | Role                                        |
+| --------------------- | ------------------------------------------- |
+| `@cypress-bug-hunter` | Root cause analysis                         |
+| `@pre-merge-qa-gate`  | Pre-merge architecture check + full QA gate |
 
 The `.github/copilot-instructions.md` file applies framework rules (no page objects, no `cy.wait(number)`, `[data-cy]` selectors only) to every Copilot response automatically. You do not need to restate them.

@@ -1,6 +1,6 @@
 /**
  * @fileoverview Core API barrel export.
- * Import everything from here: import { createModuleConfig, HTTP_STATUS } from '@core/api';
+ * Import everything from here: import { HTTP_STATUS, isSuccess } from '@core/api';
  */
 
 export {
@@ -11,12 +11,6 @@ export {
   getStatusCategory,
   getStatusName,
 } from "./status-codes";
-export {
-  createModuleConfig,
-  getAliases,
-  findByAlias,
-  CRUD_TEMPLATES,
-} from "./api-config.factory";
 export {
   registerIntercept,
   registerAllIntercepts,

@@ -15,7 +15,7 @@ Cypress.Commands.add("step", (message) => {
   cy.log(`**STEP** ${message}`);
 });
 
-// For apps using [data-cy="..."] attributes (e.g. internal apps, example module)
+// For apps using [data-cy="..."] attributes (e.g. internal apps)
 Cypress.Commands.add("getByTestId", (id, options = {}) => {
   return cy.get(`[data-cy="${id}"]`, options);
 });

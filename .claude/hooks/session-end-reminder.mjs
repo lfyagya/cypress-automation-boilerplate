@@ -22,8 +22,7 @@ console.log("━━━━━━━━━━━━━━━━━━━━━━�
 console.log("  Session ended with Cypress file changes.");
 console.log("");
 console.log("  Before opening a PR, run:");
-console.log("  → /pre-merge-qa-gate   full QA verdict");
-console.log("  → /verification-loop   architecture + rule check");
+console.log("  → pre-merge-qa-gate agent   full QA verdict");
 console.log("");
 console.log("  Pre-merge checklist:");
 console.log("  [ ] No hardcoded selectors or endpoints");

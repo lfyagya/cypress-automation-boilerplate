@@ -7,8 +7,9 @@ This project uses a strict **Config → Commands → Tests** architecture. Every
 ## Before You Write Anything
 
 ```bash
-# 1. Run duplication check — search for existing configs and commands first
-/detect-duplication
+# 1. Search for existing configs and commands first — do not duplicate
+grep -r "data-cy" cypress/configs/ui/
+grep -r "alias:" cypress/configs/api/
 
 # 2. Run the existing tests to confirm your baseline is clean
 npm run cy:run:smoke
@@ -22,17 +23,17 @@ If `cy:run:smoke` fails before you touch anything, flag it to the team. Do not s
 
 ```mermaid
 flowchart TD
-    A(["Start"]) --> B["/detect-duplication\nSearch before creating anything"]
+    A(["Start"]) --> B["Search cypress/configs/ and commands/\nbefore creating anything"]
     B --> C{"Something\nalready exists?"}
     C -- Yes --> D["Reuse or extend\nthe existing file"]
     C -- No --> E["Follow the 6-step\nmodule checklist"]
-    D --> F["Write or update\nyour test"]
+    D --> F["Write or update\nyour test (cypress-author skill)"]
     E --> F
     F --> G["npm run cy:run:smoke\nVerify locally"]
     G --> H{Pass?}
-    H -- No --> I["cypress-bug-hunter agent\nor /cypress-debug-playbook"]
+    H -- No --> I["cypress-bug-hunter agent"]
     I --> G
-    H -- Yes --> J["/verification-loop\nor pre-merge-qa-gate agent"]
+    H -- Yes --> J["pre-merge-qa-gate agent"]
     J --> K{PASS?}
     K -- BLOCK --> L["Fix flagged issues"]
     L --> G
@@ -74,14 +75,14 @@ NEVER  real credentials in code — use cypress.env.json locally, secrets in CI
 ## Pre-Merge Checklist
 
 ```text
-[ ] /detect-duplication run before creating any file
+[ ] Searched existing configs/commands before creating any file
 [ ] No hardcoded selectors — all from cypress/configs/ui/**
 [ ] No hardcoded URLs — all from cypress/configs/app/routes.js
 [ ] No cy.wait(number) — grep returns zero results
 [ ] cy.ensureAuthenticated() in beforeEach() of all auth-required specs
 [ ] New command registered in cypress/support/commands.js
 [ ] npm run cy:run:smoke passes locally
-[ ] /verification-loop returns PASS or PASS_WITH_ACTIONS
+[ ] pre-merge-qa-gate agent returns PASS or PASS_WITH_ACTIONS
 ```
 
 ---

@@ -35,14 +35,21 @@ async function main() {
 
   console.log(
     "DUPLICATION GUARD (auto-triggered): Before writing any new Cypress " +
-    "config, command, helper, utility, or spec — you MUST search first. " +
-    "Check cypress/configs/ui/**, cypress/configs/api/**, " +
-    "cypress/configs/app/routes.js, and cypress/support/commands/** for " +
-    "existing reusable matches. " +
-    "If a match exists: REUSE or EXTEND it — do not create a new file. " +
-    "If genuinely no match exists: state exactly why a new file is justified " +
-    "before writing anything. Do not approve new *.actions.js files or " +
-    "page-object wrappers. Only proceed to write code after this check is complete."
+    "config, command, helper, utility, or spec — you MUST search first, by " +
+    "VALUE, not by filename or module-naming convention. The same selector, " +
+    "endpoint, or route string can already exist in a differently-named or " +
+    "differently-organized file — cypress/configs/ui/modules/[name]/ is the " +
+    "expected location, not a search boundary. Grep the literal string (the " +
+    "data-cy value, the endpoint path, the route) across all of " +
+    "cypress/configs/**, cypress/configs/app/routes.js, and " +
+    "cypress/support/commands/** — do not stop at the one folder that " +
+    "matches this module's name. " +
+    "If a match exists anywhere: REUSE or EXTEND it — do not create a new " +
+    "file just because it isn't where you expected it. " +
+    "If genuinely no match exists after a value-level search: state exactly " +
+    "why a new file is justified before writing anything. Do not approve " +
+    "new *.actions.js files or page-object wrappers. Only proceed to write " +
+    "code after this check is complete."
   );
 
   process.exit(0);

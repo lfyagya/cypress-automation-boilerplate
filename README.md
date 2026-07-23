@@ -76,7 +76,7 @@ flowchart TD
     UNDERSTAND -- "No — re-read docs" --> STUDY
     UNDERSTAND -- Yes --> ADAPT["Remove example/ and saucedemo/\nAdapt cy.ensureAuthenticated()\nfor your auth flow"]
 
-    ADAPT --> DUPECHECK["Run /detect-duplication\nSearch configs/ and commands/ before writing anything new"]
+    ADAPT --> DUPECHECK["Search configs/ and commands/\nbefore writing anything new (auto-reminded by the duplication-guard hook)"]
 
     subgraph BUILD["Add a Module  (repeat for every feature)"]
         direction TB
@@ -94,10 +94,10 @@ flowchart TD
     M6 --> RUN["npm run cy:open\nRun and verify locally"]
     RUN --> PASS{"Tests pass?"}
 
-    PASS -- No --> DEBUG["Use cypress-bug-hunter agent\nor /cypress-debug-playbook skill"]
+    PASS -- No --> DEBUG["Use cypress-bug-hunter agent"]
     DEBUG --> RUN
 
-    PASS -- Yes --> GATE["Run /verification-loop\nor pre-merge-qa-gate agent"]
+    PASS -- Yes --> GATE["Run pre-merge-qa-gate agent"]
     GATE --> VERDICT{"QA Gate\nverdict?"}
 
     VERDICT -- BLOCK --> FIX["Fix issues flagged by the gate"]
@@ -148,16 +148,16 @@ Delete `cypress/tests/example/` and `cypress/tests/saucedemo/` once you have stu
 
 ## Add a Module
 
-Run `/detect-duplication` first. Check `cypress/configs/` and `cypress/support/commands/` before creating anything new.
+Search `cypress/configs/` and `cypress/support/commands/` first — before creating anything new. (The duplication-guard prompt hook reminds you automatically.)
 
-| Step | What to create | Path |
-|------|---------------|------|
-| 1 | API intercept config | `cypress/configs/api/modules/[x]/[x].api.js` |
-| 2 | UI selector config | `cypress/configs/ui/modules/[x]/[x].ui.js` |
-| 3 | Register routes | `cypress/configs/app/routes.js` |
-| 4 | Module commands | `cypress/support/commands/modules/[x].commands.js` |
-| 5 | Register command file | `cypress/support/commands.js` |
-| 6 | Write spec | `cypress/tests/[x]/smoke/[x]-smoke.cy.js` |
+| Step | What to create        | Path                                               |
+| ---- | --------------------- | -------------------------------------------------- |
+| 1    | API intercept config  | `cypress/configs/api/modules/[x]/[x].api.js`       |
+| 2    | UI selector config    | `cypress/configs/ui/modules/[x]/[x].ui.js`         |
+| 3    | Register routes       | `cypress/configs/app/routes.js`                    |
+| 4    | Module commands       | `cypress/support/commands/modules/[x].commands.js` |
+| 5    | Register command file | `cypress/support/commands.js`                      |
+| 6    | Write spec            | `cypress/tests/[x]/smoke/[x]-smoke.cy.js`          |
 
 **Every API config entry follows this exact shape:**
 
@@ -180,73 +180,52 @@ export const PAYMENTS_API = Object.freeze({
 
 ## Run Tests
 
-| What | Command |
-|------|---------|
-| Interactive runner | `npm run cy:open` |
-| All tests headless | `npm run cy:run` |
-| Smoke suite only | `npm run cy:run:smoke` |
-| Filter by tag | `npm run cy:run:tag -- --env grepTags=@tagname` |
-| Against a specific env | `npm run cy:run -- --env configFile=qa` |
+| What                   | Command                                         |
+| ---------------------- | ----------------------------------------------- |
+| Interactive runner     | `npm run cy:open`                               |
+| All tests headless     | `npm run cy:run`                                |
+| Smoke suite only       | `npm run cy:run:smoke`                          |
+| Filter by tag          | `npm run cy:run:tag -- --env grepTags=@tagname` |
+| Against a specific env | `npm run cy:run -- --env configFile=qa`         |
 
 ---
 
 ## AI Tools
 
-Pick the right tool for the job. Agents handle multi-step reasoning tasks. Skills are structured single-purpose workflows you invoke with a slash command.
+Skills are the primary entry point — reach for one first. Agents handle multi-step reasoning tasks (review, debugging, audits, workflow gates) that a single skill invocation doesn't cover.
 
 ```mermaid
 flowchart TD
     Q{"What do I need?"}
 
-    Q --> T1["Write a new test or command"]
-    Q --> T2["Investigate a CI run failure"]
-    Q --> T3["Debug a failing test locally"]
-    Q --> T4["Check before writing new code"]
+    Q --> T1["Write, fix, or scaffold a test"]
+    Q --> T2["Look up Cypress docs/behavior"]
+    Q --> T3["Explain or review a test, no edits"]
+    Q --> T4["Debug a failing test locally"]
     Q --> T5["Review before merge or open PR"]
-    Q --> T6["Tests are slow or flaky"]
-    Q --> T7["Write or update documentation"]
-    Q --> T8["Convert a Jira ticket to tests"]
-    Q --> T9["Migrate a legacy test"]
-    Q --> T10["Architecture compliance check"]
 
-    T1 --> A1["cypress-test-automation  agent"]
-    T2 --> A2["cypress-cloud-investigator  agent"]
-    T3 --> A3["cypress-bug-hunter  agent"]
-    T4 --> A4["/detect-duplication  skill"]
-    T5 --> A5["pre-merge-qa-gate  agent\nor /verification-loop  skill"]
-    T6 --> A6["cypress-performance-auditor  agent\nor /cypress-performance-audit  skill"]
-    T7 --> A7["documentation-writer  agent"]
-    T8 --> A8["/jira-to-cypress  skill"]
-    T9 --> A9["/cypress-command-first-migration  skill"]
-    T10 --> A10["/cypress-architecture-review  skill"]
+    T1 --> A1["cypress-author  skill"]
+    T2 --> A2["cypress-docs  skill"]
+    T3 --> A3["cypress-explain  skill"]
+    T4 --> A4["cypress-bug-hunter  agent"]
+    T5 --> A5["pre-merge-qa-gate  agent"]
 ```
 
-### Agents
+### Skills — primary
 
-| Agent | When to use |
-|-------|------------|
-| `cypress-test-automation` | Writing a new test, command, or full module |
-| `cypress-cloud-investigator` | Investigating failures in Cypress Cloud CI runs |
-| `cypress-bug-hunter` | Debugging a failing test locally |
-| `cypress-reviewer` | Code review before merge |
-| `cypress-performance-auditor` | Slow or intermittently failing tests |
-| `pre-merge-qa-gate` | Full 6-phase QA gate — PASS / PASS_WITH_ACTIONS / BLOCK verdict |
-| `documentation-writer` | Writing or updating any framework documentation |
-| `pr-creator` | Opening a pull request with a generated description |
+| Skill             | When to use                                                              |
+| ----------------- | ------------------------------------------------------------------------ |
+| `cypress-author`  | Create, update, or fix a test (E2E/component), or scaffold a full module |
+| `cypress-docs`    | Look up verified Cypress API/config/behavior from official docs          |
+| `cypress-explain` | Explain or review an existing test without making edits                  |
 
-### Skills
+### Agents — multi-step / workflow gates
 
-| Skill | When to use |
-|-------|------------|
-| `/detect-duplication` | Before writing any new config, command, or spec |
-| `/jira-to-cypress` | Convert Jira acceptance criteria to a Cypress test plan |
-| `/cypress-command-first-migration` | Migrate a legacy page-object or actions file |
-| `/cypress-architecture-review` | Validate files follow the 3-layer pattern |
-| `/cypress-debug-playbook` | Root-cause trace for a failing test |
-| `/cypress-performance-audit` | Runtime and flakiness analysis |
-| `/verification-loop` | Pre-merge QA gate as a skill workflow |
-| `/ai-regression-testing` | Write a regression test after a bug fix |
-| `/api-documentation-generator` | Generate API layer documentation |
+| Agent                | When to use                                                                   |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `cypress-bug-hunter` | Debugging a failing test locally                                              |
+| `pre-merge-qa-gate`  | Code review + full 6-phase QA gate — PASS / PASS_WITH_ACTIONS / BLOCK verdict |
+| `pr-creator`         | Opening a pull request with a generated description                           |
 
 ---
 
@@ -259,7 +238,7 @@ NEVER  →  hardcoded URLs or routes     Use constants from cypress/configs/app/
 NEVER  →  *.actions.js files           Command-first only — no action file wrappers
 NEVER  →  page-object wrappers         Commands own all logic — no POM layer
 NEVER  →  real credentials in code     Use cypress.env.json locally, env vars in CI
-NEVER  →  new file without searching   Run /detect-duplication before creating anything
+NEVER  →  new file without searching   Search cypress/configs/ and cypress/support/commands/ first
 
 ALWAYS →  cy.ensureAuthenticated()     In beforeEach() for every auth-required spec
 ALWAYS →  config constants             Check cypress/configs/ before adding any selector
@@ -283,20 +262,20 @@ ALWAYS →  apiIntercept before visit    Register intercepts before cy.visit() f
 [ ] New command registered in cypress/support/commands.js
 [ ] Lint passes — npm run lint
 [ ] If this is a bug fix — regression test named [BUG-NNN] is present
-[ ] /verification-loop or pre-merge-qa-gate returns PASS or PASS_WITH_ACTIONS
+[ ] pre-merge-qa-gate agent returns PASS or PASS_WITH_ACTIONS
 ```
 
 ---
 
 ## Documentation
 
-| Doc | What it covers |
-| --- | -------------- |
-| [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md) | Step-by-step onboarding — setup, first test, environment config |
-| [docs/onboarding/joining-an-existing-project.md](docs/onboarding/joining-an-existing-project.md) | Joining a team that already uses this framework mid-project |
-| [docs/reference/framework-standards.md](docs/reference/framework-standards.md) | Architecture rules, naming conventions, selector strategy |
-| [docs/reference/test-organization.md](docs/reference/test-organization.md) | Why configs/tests/commands are split this way — principles behind every decision |
-| [docs/reference/api-layer-guide.md](docs/reference/api-layer-guide.md) | API engine, intercepts, aliasing, schema validation |
-| [docs/guides/framework-maintenance-guide.md](docs/guides/framework-maintenance-guide.md) | Adding modules, updating configs, evolving the framework |
-| [docs/guides/support-commands-instructions.md](docs/guides/support-commands-instructions.md) | Command authoring guide — patterns, ownership, registration |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution flow, pre-merge checklist, CI secrets setup |
+| Doc                                                                                              | What it covers                                                                   |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md)                         | Step-by-step onboarding — setup, first test, environment config                  |
+| [docs/onboarding/joining-an-existing-project.md](docs/onboarding/joining-an-existing-project.md) | Joining a team that already uses this framework mid-project                      |
+| [docs/reference/framework-standards.md](docs/reference/framework-standards.md)                   | Architecture rules, naming conventions, selector strategy                        |
+| [docs/reference/test-organization.md](docs/reference/test-organization.md)                       | Why configs/tests/commands are split this way — principles behind every decision |
+| [docs/reference/api-layer-guide.md](docs/reference/api-layer-guide.md)                           | API engine, intercepts, aliasing, schema validation                              |
+| [docs/guides/framework-maintenance-guide.md](docs/guides/framework-maintenance-guide.md)         | Adding modules, updating configs, evolving the framework                         |
+| [docs/guides/support-commands-instructions.md](docs/guides/support-commands-instructions.md)     | Command authoring guide — patterns, ownership, registration                      |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                                                               | Contribution flow, pre-merge checklist, CI secrets setup                         |

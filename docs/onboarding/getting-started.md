@@ -7,7 +7,7 @@
 1. Install and configure the boilerplate
 2. Run the included reference tests to verify your setup
 3. Study the reference module to understand the 3-layer pattern
-4. Remove the examples and build your first real module
+4. Remove the reference module and build your first real module
 
 Time: ~30 minutes
 
@@ -87,7 +87,7 @@ In the Cypress runner, select **saucedemo-smoke.cy.js** and run it. All tests sh
 
 ## Step 4 — Understand the 3-Layer Pattern
 
-The boilerplate ships two reference modules. Read both.
+The boilerplate ships one reference module. Read it.
 
 **`saucedemo/` — UI-only pattern reference** (saucedemo.com has no real API layer):
 
@@ -97,16 +97,9 @@ cypress/support/commands/modules/saucedemo.commands.js   ← Layer 2: commands
 cypress/tests/saucedemo/smoke/saucedemo-smoke.cy.js      ← Layer 3: spec
 ```
 
-**`example/` — full 3-layer pattern reference** (includes API intercept config):
+For the API config layer (`configs/api/modules/[module]/[module].api.js`), see the pattern in [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md) — `saucedemo` has no API config to reference since the target app has no real API layer.
 
-```text
-cypress/configs/ui/modules/example/example.ui.js         ← Layer 1: selectors
-cypress/configs/api/modules/example/example.api.js       ← Layer 1: API intercepts
-cypress/support/commands/modules/example.commands.js     ← Layer 2: commands
-cypress/tests/example/smoke/example-smoke.cy.js          ← Layer 3: spec
-```
-
-Notice in both:
+Notice:
 
 - The spec file only calls `cy.*` commands. It contains no selectors, no URLs, no logic.
 - The command file imports from the config files. It never hardcodes a selector or URL.
@@ -141,18 +134,13 @@ Common patterns:
 
 ---
 
-## Step 6 — Remove the Example Modules
+## Step 6 — Remove the Reference Module
 
-Once you understand the pattern, delete the reference modules:
+Once you understand the pattern, delete it:
 
 ```bash
-rm -rf cypress/tests/example
 rm -rf cypress/tests/saucedemo
-rm -rf cypress/configs/ui/modules/example
 rm -rf cypress/configs/ui/modules/saucedemo
-rm -rf cypress/configs/api/modules/example
-rm -rf cypress/configs/api/modules/saucedemo
-rm -rf cypress/support/commands/modules/example.commands.js
 rm -rf cypress/support/commands/modules/saucedemo.commands.js
 ```
 
@@ -162,7 +150,7 @@ Then remove their import lines from `cypress/support/commands.js`.
 
 ## Step 7 — Write Your First Module
 
-Before creating any file, run `/detect-duplication` to check if a config or command already exists for what you need.
+Before creating any file, search `cypress/configs/**` and `cypress/support/commands/**` to check if a config or command already exists for what you need.
 
 Then follow the 6-step checklist:
 
@@ -272,7 +260,7 @@ npm run cy:open
 
 Select your new spec and run it. It should pass.
 
-If it fails, use the `cypress-bug-hunter` agent or `/cypress-debug-playbook` skill to trace the root cause.
+If it fails, use the `cypress-bug-hunter` agent to trace the root cause.
 
 ---
 

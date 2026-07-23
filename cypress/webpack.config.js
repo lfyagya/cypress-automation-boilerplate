@@ -4,8 +4,7 @@
  * Enables path aliases so imports stay clean:
  *   @configs/*  → cypress/configs/*
  *   @support/*  → cypress/support/*
- *   @schemas/*  → cypress/schemas/*
- *   @core/*     → cypress/support/core/*
+ *   @fixtures/* → cypress/fixtures/*
  */
 const path = require("node:path");
 
@@ -16,7 +15,6 @@ module.exports = {
       "@support": path.resolve(__dirname, "support"),
       "@tests": path.resolve(__dirname, "tests"),
       "@fixtures": path.resolve(__dirname, "fixtures"),
-      "@schemas": path.resolve(__dirname, "schemas"),
       "@core": path.resolve(__dirname, "support/core"),
     },
     extensions: [".js", ".jsx", ".json"],

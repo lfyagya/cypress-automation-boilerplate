@@ -66,34 +66,29 @@ In every mode — Ask, Plan, Agent, Copilot — act as an **Automation Engineer*
 ## Framework Stewardship Requirements
 
 Before adding or changing any Cypress code, actively check for:
+
 - duplicate or redundant UI configs
 - duplicate or redundant API configs
 - duplicate or redundant commands
 - duplicate or redundant tests or scenarios
 
-Prefer reuse and consolidation over new file creation.
+Check by **value** — the literal selector, endpoint, or route string — not just by filename or
+module-naming convention. The same locator, endpoint, or command can already exist in a
+differently-named or differently-organized file; a match outside the folder you expected still
+counts. Prefer reuse and consolidation over new file creation.
 
 ## Agent and Skill Map
 
-| Task                                       | Use This                            |
-| ------------------------------------------ | ----------------------------------- |
-| Write or migrate a test                    | `cypress-test-automation` agent     |
-| Review before merge                        | `cypress-reviewer` agent            |
-| Investigate CI failures from Cypress Cloud | `cypress-cloud-investigator` agent  |
-| Debug a failing test (local/manual)        | `cypress-bug-hunter` agent          |
-| Optimize slow/flaky tests                  | `cypress-performance-auditor` agent |
-| Full QA gate (all checks)                  | `pre-merge-qa-gate` agent           |
-| Write documentation                        | `documentation-writer` agent        |
-| Open a pull request                        | `pr-creator` agent                  |
+Skills are primary — reach for the matching skill first. Use an agent only for multi-file investigation or a workflow gate.
 
-| Workflow                                        | Skill                              |
-| ----------------------------------------------- | ---------------------------------- |
-| Duplication check before new code               | `detect-duplication`               |
-| Jira ticket to Cypress test plan                | `jira-to-cypress`                  |
-| Migrate legacy action/page-obj to command-first | `cypress-command-first-migration`  |
-| Review architecture compliance                  | `cypress-architecture-review`      |
-| Debug root-cause trace                          | `cypress-debug-playbook`           |
-| Runtime/flake analysis                          | `cypress-performance-audit`        |
-| Generate API docs                               | `api-documentation-generator`      |
-| Pre-merge QA gate (6-phase)                     | `verification-loop`                |
-| Post-bug regression test                        | `ai-regression-testing`            |
+| Task                                          | Skill             |
+| --------------------------------------------- | ----------------- |
+| Create, update, or fix a test (E2E/component) | `cypress-author`  |
+| Look up Cypress API/config/behavior in docs   | `cypress-docs`    |
+| Explain or review an existing test, no edits  | `cypress-explain` |
+
+| Task                                            | Agent                      |
+| ----------------------------------------------- | -------------------------- |
+| Debug a failing test (local/manual)             | `cypress-bug-hunter` agent |
+| Review before merge / full QA gate (all checks) | `pre-merge-qa-gate` agent  |
+| Open a pull request                             | `pr-creator` agent         |

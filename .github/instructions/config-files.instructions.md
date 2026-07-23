@@ -9,23 +9,21 @@ Config files are pure constants. They have no logic, no Cypress commands, no sid
 ## API Config Pattern (`configs/api/**/*.api.js`)
 
 ```javascript
-import { createModuleConfig } from "@core/api/api-config.factory.js";
 import { HTTP_STATUS } from "@core/api/status-codes.js";
 
-export const FEATURE_API = createModuleConfig({
-  basePath: "/api/your-module",
-  prefix: "feat",
-  resources: {
-    "resource-name": ["LIST", "DETAILS", "CREATE", "UPDATE", "DELETE"],
-  },
-  custom: {
-    SPECIAL_ENDPOINT: {
-      method: "POST",
-      endpoint: "/api/your-module/special*",
-      alias: "featPostSpecial",
-      expectedStatus: HTTP_STATUS.OK,
-    },
-  },
+export const FEATURE_API = Object.freeze({
+  LIST: Object.freeze({
+    method: "GET",
+    endpoint: "**/api/feature**",
+    alias: "featureList",
+    expectedStatus: HTTP_STATUS.OK,
+  }),
+  CREATE: Object.freeze({
+    method: "POST",
+    endpoint: "**/api/feature**",
+    alias: "featureCreate",
+    expectedStatus: HTTP_STATUS.CREATED,
+  }),
 });
 ```
 
@@ -46,3 +44,6 @@ export const FEATURE_UI = Object.freeze({
 - Use `data-cy` attributes as primary selectors.
 - UPPER_SNAKE_CASE keys.
 - No Cypress commands, no logic — constants only.
+- Before adding a new selector/endpoint/route, grep the literal value across all of
+  `cypress/configs/**` first — not just the module folder that seems relevant. The same value can
+  already be defined under a different module or a different key name.

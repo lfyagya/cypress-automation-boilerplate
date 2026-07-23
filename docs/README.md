@@ -13,6 +13,7 @@ Find what you need by role, not by guessing file names.
 | Understanding why the architecture works this way                          | [reference/test-organization.md](reference/test-organization.md)                       |
 | Working with API intercepts or schema validation                           | [reference/api-layer-guide.md](reference/api-layer-guide.md)                           |
 | Understanding how humans and AI agents use this framework differently      | [reference/two-views.md](reference/two-views.md)                                       |
+| Understanding the hook/agent control plane, and what a bigger harness adds | [reference/harness-engineering.md](reference/harness-engineering.md)                   |
 | Asking why a past decision was made                                        | [decisions/](decisions/)                                                               |
 
 ---

@@ -37,7 +37,7 @@ Commands map to the GoF Command Pattern: each is a named, self-contained unit of
 - Selector changes: update one constant in `configs/ui/`, all tests update automatically.
 - Flow changes: fix one command, not every test that calls it.
 - Onboarding: new engineers write tests by calling `cy.*` commands — no class instantiation, no inheritance to understand.
-- Duplication detection: the `/detect-duplication` skill and post-write hooks catch redundant selectors and commands before they merge.
+- Duplication detection: the duplication-guard prompt hook and post-write hooks catch redundant selectors and commands before they merge.
 - AI-assisted authoring: LLMs generate command-first code reliably because the pattern is uniform — no inheritance trees to navigate.
 
 **Harder:**

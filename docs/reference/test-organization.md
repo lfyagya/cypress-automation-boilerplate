@@ -202,8 +202,6 @@ cypress/support/
 │   ├── auth.commands.js
 │   ├── navigation.commands.js
 │   ├── ui.commands.js
-│   ├── filter.commands.js
-│   ├── form.commands.js
 │   └── table.commands.js
 │
 └── commands/modules/   ← Tier 3: Feature isolation
@@ -291,7 +289,7 @@ In command-first, these responsibilities are formally separated:
 - Selectors → `configs/ui/` (pure data, frozen, no logic)
 - Behaviour → `commands/modules/` (pure behaviour, no data)
 
-**The practical migration question:** If you have existing POM tests, the `cypress-command-first-migration` skill (`/cypress-command-first-migration`) provides a guided workflow for extracting selectors into configs and converting page methods into commands. The goal is not to throw away the investment in your POM tests — it is to make that investment durable by moving each responsibility to a layer that enforces it.
+**The practical migration question:** If you have existing POM tests, use `cypress-author` to extract selectors from each `PageObject` class into a frozen `configs/ui/` entry and convert its methods into commands one at a time, verifying each spec still passes as you go. The goal is not to throw away the investment in your POM tests — it is to make that investment durable by moving each responsibility to a layer that enforces it.
 
 ---
 

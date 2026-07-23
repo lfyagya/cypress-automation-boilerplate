@@ -26,7 +26,10 @@ Cypress.Commands.add("<verb><FeatureContext>", (options = {}) => {
 ## Rules
 
 1. One command name has exactly one owner file.
-2. Do not duplicate `Cypress.Commands.add('name', ...)` across files.
+2. Do not duplicate `Cypress.Commands.add('name', ...)` across files. Before adding a new command,
+   grep for the selector/endpoint it would use across `cypress/support/commands/**` and
+   `cypress/configs/**` first — the same behavior may already be implemented under a differently
+   named command in a different module or in `common/`, not just under a matching name.
 3. Use clear verb-oriented names: `openFilter`, `submitForm`, `assertTableRow`.
 4. Consume selectors/API config from `@configs/**` only.
 5. No `cy.wait(ms)` — use `cy.apiWait()` or `.should()` assertions.

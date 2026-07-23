@@ -17,10 +17,8 @@ model: Claude Sonnet 4.6
 
 ## When NOT to use this agent
 
-- Investigating a CI run from Cypress Cloud → use `cypress-cloud-investigator`
-- Writing new tests → use `cypress-test-automation`
-- Reviewing code before merge → use `cypress-reviewer`
-- Auditing for slow or flaky patterns across the whole suite → use `cypress-performance-auditor`
+- Writing new tests → use the `cypress-author` skill
+- Reviewing code before merge → use `pre-merge-qa-gate`
 
 ---
 
@@ -37,14 +35,14 @@ You are a Cypress debugging specialist. Find the root cause quickly and apply th
 
 ## Common Root Causes — Check These First
 
-| Symptom | Likely cause |
-| ------- | ------------ |
-| Element not found | Stale selector in UI config, or DOM not ready (missing `cy.apiWait`) |
-| Alias not found / timed out | `cy.apiIntercept()` called after `cy.visit()` |
-| Status code mismatch | `expectedStatus` in API config does not match what the server returns |
-| Flaky test | Hard wait removed but deterministic wait (`cy.apiWait`) not added |
-| Wrong data | Fixture is stale, or test state is leaking between runs (missing `beforeEach` reset) |
-| Auth failure | `cy.ensureAuthenticated()` missing from `beforeEach()` |
+| Symptom                     | Likely cause                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| Element not found           | Stale selector in UI config, or DOM not ready (missing `cy.apiWait`)                 |
+| Alias not found / timed out | `cy.apiIntercept()` called after `cy.visit()`                                        |
+| Status code mismatch        | `expectedStatus` in API config does not match what the server returns                |
+| Flaky test                  | Hard wait removed but deterministic wait (`cy.apiWait`) not added                    |
+| Wrong data                  | Fixture is stale, or test state is leaking between runs (missing `beforeEach` reset) |
+| Auth failure                | `cy.ensureAuthenticated()` missing from `beforeEach()`                               |
 
 ## Rules
 

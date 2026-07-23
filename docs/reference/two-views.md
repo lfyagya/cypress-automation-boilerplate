@@ -120,7 +120,10 @@ Never implement auth inline in a spec. If the auth flow changes, one command fix
 
 ### When to NOT Create a New Command
 
-Before creating anything, run `/detect-duplication`. A new command is only justified when:
+Before creating anything, search `cypress/support/commands/**` **by what the command actually
+does** — grep the action or assertion it performs, not just the module folder that seems relevant.
+The same behavior can already exist under a command named for a different module, or living in
+`common/` instead of `modules/`. A new command is only justified when:
 
 - No existing command covers this action
 - The action is reused in 2+ specs (single-use logic stays in the test)
@@ -132,11 +135,16 @@ If an action is genuinely one-off and specific to a single spec, keep it inline 
 
 ### When to NOT Create a New Config Entry
 
-- The same selector already exists under a different name (check all `configs/ui/modules/**` first)
-- The same endpoint is already intercepted in an existing API config
-- A route already exists in `routes.js`
+- The same selector already exists under a different name, in a different module's file, or
+  outside the module folder you'd expect — grep the literal `data-cy` value across all of
+  `configs/ui/**` before assuming it's new
+- The same endpoint is already intercepted in an existing API config, possibly under a different
+  module — grep the literal path across all of `configs/api/**`, not just this module's file
+- A route already exists in `routes.js`, possibly under a different constant name
 
-Duplication in configs is the most common source of long-term drift. Two entries for the same element diverge the moment the app changes.
+Duplication in configs is the most common source of long-term drift. Two entries for the same
+element diverge the moment the app changes — and a filename-based search that never finds them is
+how they stay duplicated.
 
 ---
 
@@ -190,16 +198,11 @@ Session ends
 
 Each agent has a bounded scope. Use the right agent for the right task.
 
-| Agent                         | When to use it                                                 |
-| ----------------------------- | -------------------------------------------------------------- |
-| `cypress-test-automation`     | Writing a new test, command, or full module scaffold           |
-| `cypress-reviewer`            | Reviewing code before a PR — returns PASS / BLOCK verdict      |
-| `cypress-bug-hunter`          | Debugging a failing or flaky test — traces root cause          |
-| `cypress-cloud-investigator`  | Investigating CI failures from Cypress Cloud data              |
-| `cypress-performance-auditor` | Auditing for slow tests, unnecessary API calls, flake patterns |
-| `pre-merge-qa-gate`           | Full 6-phase QA gate — final check before opening a PR         |
-| `documentation-writer`        | Writing or updating framework docs, ADRs, command guides       |
-| `pr-creator`                  | Generating PR description and opening the PR via `gh` CLI      |
+| Agent                | When to use it                                                       |
+| -------------------- | -------------------------------------------------------------------- |
+| `cypress-bug-hunter` | Debugging a failing or flaky test — traces root cause                |
+| `pre-merge-qa-gate`  | Code review + full 6-phase QA gate — final check before opening a PR |
+| `pr-creator`         | Generating PR description and opening the PR via `gh` CLI            |
 
 Agents are defined in `.github/agents/*.agent.md`. They are not general-purpose assistants — each one loads a specific set of context and applies a specific workflow.
 
@@ -207,18 +210,13 @@ Agents are defined in `.github/agents/*.agent.md`. They are not general-purpose 
 
 ### Skills — Structured Single-Purpose Workflows
 
-Skills are slash commands that run inline in the current conversation. They load specialized knowledge on demand.
+Skills are slash commands that run inline in the current conversation. They load specialized knowledge on demand. `cypress-author`, `cypress-docs`, and `cypress-explain` are the [official Cypress AI Toolkit](https://github.com/cypress-io/ai-toolkit) skills and are the primary entry point for authoring, doc lookups, and explanations — reach for an agent (above) only when the task needs multi-file investigation or a workflow gate.
 
-| Skill                              | What it does                                                | When to use                         |
-| ---------------------------------- | ----------------------------------------------------------- | ----------------------------------- |
-| `/detect-duplication`              | Searches configs, commands, and specs for existing coverage | Before creating ANY new file        |
-| `/cypress-architecture-review`     | Reviews code against the 7 non-negotiable rules             | Before merging                      |
-| `/cypress-command-first-migration` | Migrates action files and page objects to commands          | When inheriting legacy tests        |
-| `/cypress-debug-playbook`          | Structured root-cause trace for failing tests               | When a test is unexpectedly red     |
-| `/cypress-performance-audit`       | Identifies flaky patterns, slow hooks, redundant waits      | When tests are slow or intermittent |
-| `/verification-loop`               | Full pre-merge 6-phase QA gate                              | Final check before PR               |
-| `/jira-to-cypress`                 | Converts a Jira ticket into a test plan                     | When starting from a ticket         |
-| `/ai-regression-testing`           | Generates a regression test after a bug fix                 | After any bug fix                   |
+| Skill             | What it does                                                 | When to use                               |
+| ----------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| `cypress-author`  | Creates, updates, and fixes E2E/component tests              | Writing or fixing any test                |
+| `cypress-docs`    | Searches official Cypress documentation for verified answers | Looking up a command, config, or behavior |
+| `cypress-explain` | Explains a test or Cypress concept without making edits      | Reviewing or understanding existing code  |
 
 ---
 
@@ -284,17 +282,17 @@ Both systems read from the same canonical rules (`FRAMEWORK_RULES.md`). The enfo
 ## Combining Both Views — A Typical Week
 
 ```
-Monday: Engineer receives Jira ticket
+Monday: Engineer receives a ticket
   → Human view: understands what needs testing
-  → AI view: runs /jira-to-cypress to generate a test plan
+  → AI view: uses cypress-author to plan out the test
 
 Tuesday: Engineer writes the module
-  → AI view: uses cypress-test-automation agent to scaffold
+  → AI view: uses cypress-author to scaffold the spec
   → Hooks enforce rules on every file Claude writes
 
 Wednesday: Engineer reviews the output
   → Human view: reads the spec to verify business intent
-  → AI view: runs cypress-reviewer agent for architecture sign-off
+  → AI view: runs pre-merge-qa-gate agent for architecture sign-off
 
 Thursday: Push to PR
   → AI view: runs pre-merge-qa-gate for full verdict

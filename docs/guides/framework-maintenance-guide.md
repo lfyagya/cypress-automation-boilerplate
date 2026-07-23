@@ -6,7 +6,7 @@
 
 ## Before You Start Any Task
 
-Run `/detect-duplication` first. Search `cypress/configs/` and `cypress/support/commands/` before creating any new file. If something similar already exists, extend it instead.
+Search `cypress/configs/` and `cypress/support/commands/` first — before creating any new file. If something similar already exists, extend it instead. (The duplication-guard prompt hook will remind you of this automatically.)
 
 ---
 
@@ -168,13 +168,20 @@ The change propagates automatically to every command that imports the constant. 
 
 Common commands live in `cypress/support/commands/common/` and are available to all modules.
 
-Before adding one, search for an existing command that does the same thing:
+Before adding one, search **by what the command does**, not just by scanning one folder's command
+registrations — the same behavior may already exist under `modules/` instead of `common/`, or under
+a name that doesn't obviously match:
 
 ```bash
-grep -r "Cypress.Commands.add" cypress/support/commands/common/
+# List every registered command name first
+grep -rn "Cypress.Commands.add" cypress/support/commands/
+
+# Then search by the actual selector/endpoint/action it would use —
+# a match here means reuse it, even if the command name doesn't suggest it
+grep -rn "<the-data-cy-value-or-endpoint-you-need>" cypress/support/commands/ cypress/configs/
 ```
 
-If nothing matches, create or extend the appropriate file:
+If nothing matches either search, create or extend the appropriate file:
 
 | What it does | File |
 | ------------ | ---- |
@@ -227,7 +234,7 @@ npx cypress run --spec "cypress/tests/payments/smoke/payments-smoke.cy.js"
 npx cypress run --env grepTags=@smoke,grep="loads the payments list"
 ```
 
-1. Use the `cypress-bug-hunter` agent or `/cypress-debug-playbook` skill for a guided root-cause trace.
+1. Use the `cypress-bug-hunter` agent for a guided root-cause trace.
 
 ---
 
@@ -245,7 +252,7 @@ npm run cy:run -- --env configFile=[name]
 ## Checklist for Every New Module
 
 ```text
-[ ] /detect-duplication run — no existing match found
+[ ] Searched existing configs/commands — no existing match found
 [ ] API config created with Object.freeze() at every level
 [ ] UI config created with [data-cy] selectors only
 [ ] Routes added to routes.js
@@ -253,5 +260,5 @@ npm run cy:run -- --env configFile=[name]
 [ ] Command file registered in commands.js
 [ ] Smoke spec created with cy.ensureAuthenticated() in beforeEach()
 [ ] All tests pass locally: npm run cy:run:smoke
-[ ] /verification-loop or pre-merge-qa-gate returns PASS
+[ ] pre-merge-qa-gate agent returns PASS
 ```

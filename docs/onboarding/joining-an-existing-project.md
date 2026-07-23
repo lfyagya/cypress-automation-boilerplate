@@ -81,7 +81,7 @@ If tests fail before you've touched anything, that is a pre-existing issue — d
 
 ## Step 4 — Before Writing Anything New
 
-**Always run `/detect-duplication` first.** This is the most important step.
+**Always search for an existing match first.** This is the most important step — the duplication-guard hook (`.claude/hooks/prompt-duplication-guard.mjs`) reminds you of this automatically whenever a prompt looks like it's creating new Cypress code.
 
 Search for existing configs and commands that match what you need:
 
@@ -146,7 +146,7 @@ Only do this if no existing module covers the feature you are testing.
 
 Follow the 6-step module checklist in [docs/onboarding/getting-started.md](getting-started.md#step-7--write-your-first-module).
 
-Before starting: run `/detect-duplication`, confirm the module does not exist, and check `cypress/support/commands/common/` for any shared commands you can reuse.
+Before starting: search existing configs/commands, confirm the module does not exist, and check `cypress/support/commands/common/` for any shared commands you can reuse.
 
 ---
 
@@ -183,11 +183,7 @@ This keeps every test readable, every selector in one place, and every change is
 Before you open a PR, run:
 
 ```bash
-# Quick check
-/verification-loop
-
-# Or full gate
-# Use the pre-merge-qa-gate agent
+# Run the pre-merge-qa-gate agent for a full PASS / PASS_WITH_ACTIONS / BLOCK verdict
 ```
 
 The CI pipeline also runs `cypress-rules.yml` on every PR — it blocks merge if any non-negotiable rule is violated. The same validation runs locally via `.claude/hooks/` on every file write.
@@ -200,8 +196,9 @@ If CI blocks your PR, read the error output: it will name the exact file and lin
 
 | Problem                                                        | Where to go                                                                                |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Test is failing                                                | `cypress-bug-hunter` agent or `/cypress-debug-playbook`                                    |
-| Not sure if something already exists                           | `/detect-duplication` skill                                                                |
+| Test is failing                                                | `cypress-bug-hunter` agent                                                                  |
+| Need to write, fix, or explain a test                          | `cypress-author` / `cypress-explain` skill                                                 |
+| Not sure if something already exists                           | Search `cypress/configs/**` and `cypress/support/commands/**` (the duplication-guard hook will remind you) |
 | Need to understand the architecture                            | [docs/reference/framework-standards.md](../reference/framework-standards.md)               |
 | Need to add a new module                                       | [docs/guides/framework-maintenance-guide.md](../guides/framework-maintenance-guide.md)     |
 | CI pipeline failing                                            | [docs/guides/ci-cd-guide.md](../guides/ci-cd-guide.md)                                     |

@@ -21,11 +21,11 @@ This boilerplate is application-agnostic. Swap out the example modules for your 
 
 A three-layer Cypress framework with a single, non-negotiable architecture:
 
-| Layer          | Location                        | Rule                                                  |
-| -------------- | ------------------------------- | ----------------------------------------------------- |
-| **Config**     | `cypress/configs/**`            | Selectors, endpoints, routes — all `Object.freeze()`  |
-| **Commands**   | `cypress/support/commands/**`   | Atomic `cy.*` commands — one owner per name           |
-| **Tests**      | `cypress/tests/**/*.cy.js`      | Thin orchestration of `cy.*` calls only               |
+| Layer        | Location                      | Rule                                                 |
+| ------------ | ----------------------------- | ---------------------------------------------------- |
+| **Config**   | `cypress/configs/**`          | Selectors, endpoints, routes — all `Object.freeze()` |
+| **Commands** | `cypress/support/commands/**` | Atomic `cy.*` commands — one owner per name          |
+| **Tests**    | `cypress/tests/**/*.cy.js`    | Thin orchestration of `cy.*` calls only              |
 
 **Included out of the box:**
 
@@ -44,51 +44,42 @@ A three-layer Cypress framework with a single, non-negotiable architecture:
 
 ## When to use what?
 
+### Skills — primary, use these first
+
+The [Cypress AI Toolkit](https://github.com/cypress-io/ai-toolkit) skills are the primary way to write, fix, explain, and look up Cypress behavior. Reach for an agent only when the task needs multi-file investigation or a workflow gate (below).
+
+| Task                                          | Skill             |
+| --------------------------------------------- | ----------------- |
+| Create, update, or fix a test (E2E/component) | `cypress-author`  |
+| Look up Cypress API/config/behavior in docs   | `cypress-docs`    |
+| Explain or review an existing test, no edits  | `cypress-explain` |
+
 ### Agents — multi-step, reasoning-heavy tasks
 
-Agents spawn an independent context and reason across multiple steps. Use them for tasks that require investigation, judgment, or multi-file changes.
+Agents spawn an independent context and reason across multiple steps. Use them for tasks that require investigation, judgment, or multi-file changes — not for authoring a test (use `cypress-author` for that).
 
-**Daily development** — these run on nearly every feature branch:
+**Daily development:**
 
-| Situation                             | Agent                          |
-| ------------------------------------- | ------------------------------ |
-| Writing a new test or command         | `cypress-test-automation`      |
-| Reviewing code before merge           | `cypress-reviewer`             |
-| Debugging a failing test locally      | `cypress-bug-hunter`           |
-| Auditing for flakiness or slowness    | `cypress-performance-auditor`  |
+| Situation                        | Agent                |
+| -------------------------------- | -------------------- |
+| Debugging a failing test locally | `cypress-bug-hunter` |
 
 **Workflow / release** — these run at specific workflow gates:
 
-| Situation                             | Agent                       |
-| ------------------------------------- | --------------------------- |
-| Full QA gate before opening a PR      | `pre-merge-qa-gate`         |
-| Investigating a CI run failure        | `cypress-cloud-investigator`|
-| Opening a pull request                | `pr-creator`                |
-| Writing framework or API docs         | `documentation-writer`      |
-
-### Skills — structured single-purpose workflows
-
-| Task                                  | Skill                               |
-| ------------------------------------- | ----------------------------------- |
-| Check for duplication before writing  | `/detect-duplication`               |
-| Convert a Jira ticket to a test plan  | `/jira-to-cypress`                  |
-| Validate architecture compliance      | `/cypress-architecture-review`      |
-| Debug root-cause trace                | `/cypress-debug-playbook`           |
-| Migrate legacy test to command-first  | `/cypress-command-first-migration`  |
-| Audit test suite performance          | `/cypress-performance-audit`        |
-| Generate API documentation            | `/api-documentation-generator`      |
-| Run full pre-merge QA gate            | `/verification-loop`                |
-| Write regression test after a bug fix | `/ai-regression-testing`            |
+| Situation                                         | Agent               |
+| ------------------------------------------------- | ------------------- |
+| Reviewing code / full QA gate before opening a PR | `pre-merge-qa-gate` |
+| Opening a pull request                            | `pr-creator`        |
 
 ### npm scripts — running tests
 
-| What                      | Command                                               |
-| ------------------------- | ----------------------------------------------------- |
-| Interactive runner        | `npm run cy:open`                                     |
-| All tests headless        | `npm run cy:run`                                      |
-| Smoke tests only          | `npm run cy:run:smoke`                                |
-| By tag                    | `npm run cy:run:tag -- --env grepTags=@tagname`       |
-| Against specific env      | `npm run cy:run -- --env configFile=qa`               |
+| What                 | Command                                         |
+| -------------------- | ----------------------------------------------- |
+| Interactive runner   | `npm run cy:open`                               |
+| All tests headless   | `npm run cy:run`                                |
+| Smoke tests only     | `npm run cy:run:smoke`                          |
+| By tag               | `npm run cy:run:tag -- --env grepTags=@tagname` |
+| Against specific env | `npm run cy:run -- --env configFile=qa`         |
 
 ---
 
@@ -154,13 +145,13 @@ docs/                                ← Read these before writing any code
 ├── settings.json                    ← Hooks + permissions
 ├── hooks/                           ← Automatic rule enforcement on every write
 ├── agents/                          ← Subagents (spawned with Agent tool — multi-step, own context)
-└── skills/                          ← Skills (slash commands — run inline, e.g. /detect-duplication)
+└── skills/                          ← cypress-author, cypress-docs, cypress-explain (official Cypress AI Toolkit)
 
-.github/                             ← GitHub Copilot config
+.github/                             ← GitHub Copilot config (mirrors .claude/)
 ├── copilot-instructions.md          ← Global Copilot context
-├── agents/                          ← Copilot agents
-├── skills/                          ← Copilot custom skills
-└── prompts/                         ← Slash-command prompts
+├── agents/                          ← Copilot agents (same set as .claude/agents/)
+├── skills/                          ← Copilot custom skills (same set as .claude/skills/)
+└── prompts/                         ← Slash-command prompts for scaffolding config/command files
 ```
 
 ---
@@ -194,6 +185,14 @@ ALWAYS →  data-cy attributes           For all new selectors you add to the ap
 ```
 
 Hooks in `.claude/hooks/` enforce these automatically on every file write.
+
+> **Search by value, not by filename.** "Searching for an existing one first" means grepping the
+> literal selector/endpoint/route string across `cypress/configs/**` and
+> `cypress/support/commands/**` — not just checking the one folder whose name matches this
+> module. The same locator, endpoint, or command can already exist in a differently-named or
+> differently-organized file; folder/module-naming conventions are a starting point, not a search
+> boundary. A filename-only check that finds nothing is not the same as a value-based check that
+> finds nothing.
 
 ---
 

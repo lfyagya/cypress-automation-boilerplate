@@ -7,7 +7,7 @@
  * Available commands:
  *   cy.loginSaucedemo(username?, password?)   — login with session caching
  *   cy.visitInventory()                       — navigate to /inventory.html
- *   cy.visitCart()                            — navigate to /cart.html
+ *   cy.visitCart()                             — navigate to /cart.html
  *   cy.addToCart(productName)                 — add a product by kebab-case name
  *   cy.removeFromCart(productName)            — remove while on inventory page
  *   cy.assertCartBadge(count)                 — assert the header cart badge count
