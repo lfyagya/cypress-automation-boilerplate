@@ -194,7 +194,7 @@ Files to check:
 
 ## Skills — Primary, Use These First
 
-`cypress-author`, `cypress-docs`, and `cypress-explain` are the official [Cypress AI Toolkit](https://github.com/cypress-io/ai-toolkit) skills, symlinked into `.claude/skills/`. They are the primary way to write/fix tests, look up documented Cypress behavior, and explain existing tests.
+`cypress-author`, `cypress-docs`, and `cypress-explain` are the official [Cypress AI Toolkit](https://github.com/cypress-io/ai-toolkit) skills. Their canonical source lives in `.agents/skills/` (tracked by `skills-lock.json`) and is copied into `.claude/skills/` for Claude Code to load. They are the primary way to write/fix tests, look up documented Cypress behavior, and explain existing tests.
 
 ## How Claude Code Agents Work in This Repo
 
@@ -208,7 +208,7 @@ Each agent is defined in `.claude/agents/` and has a specific role. Use an agent
 
 ## How GitHub Copilot Agents Work in This Repo
 
-Each agent is defined in `.github/agents/` and invoked with `@agent-name` in Copilot Chat. `.github/skills/` mirrors the same `cypress-author` / `cypress-docs` / `cypress-explain` primary skills.
+Each agent is defined in `.github/agents/` and invoked with `@agent-name` in Copilot Chat. Copilot reads the same primary skills straight from `.claude/skills/` — see `.github/copilot-operating-playbook.md`.
 
 | Agent                 | Role                                        |
 | --------------------- | ------------------------------------------- |

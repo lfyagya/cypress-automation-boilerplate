@@ -13,7 +13,7 @@ Any engineering team that:
 - Is migrating from page-object patterns or scattered test files
 - Wants AI assistance (Claude Code + GitHub Copilot) wired into the framework from the start
 
-This boilerplate is application-agnostic. Swap out the example modules for your app.
+This boilerplate is application-agnostic. Swap out the `saucedemo/` example module for your app.
 
 ---
 
@@ -29,8 +29,7 @@ A three-layer Cypress framework with a single, non-negotiable architecture:
 
 **Included out of the box:**
 
-- `example/` module — full reference (UI config + API config + commands + spec)
-- `saucedemo/` module — working example against a real demo app
+- `saucedemo/` module — working example against a real demo app (UI config + commands + smoke spec)
 - `cy.apiIntercept()` engine — config-driven network intercepts with auto-aliasing
 - `cy.validateSchema()` — JSON schema validation for API responses
 - `cy.ensureAuthenticated()` — session-cached auth (adapt to your auth flow)
@@ -141,17 +140,18 @@ docs/                                ← Read these before writing any code
 └── decisions/                       ← ADRs — append-only architecture record
     └── README.md                    ← ADR format guide
 
+.agents/skills/                      ← Canonical Cypress AI Toolkit skill source (tracked by skills-lock.json)
+
 .claude/                             ← Claude Code config (auto-enforced)
 ├── settings.json                    ← Hooks + permissions
 ├── hooks/                           ← Automatic rule enforcement on every write
 ├── agents/                          ← Subagents (spawned with Agent tool — multi-step, own context)
-└── skills/                          ← cypress-author, cypress-docs, cypress-explain (official Cypress AI Toolkit)
+└── skills/                          ← cypress-author, cypress-docs, cypress-explain (copied from .agents/skills/)
 
-.github/                             ← GitHub Copilot config (mirrors .claude/)
-├── copilot-instructions.md          ← Global Copilot context
+.github/                             ← GitHub Copilot config (mirrors .claude/agents)
+├── copilot-instructions.md          ← Global Copilot context — points Copilot at .claude/skills/ for skill content
 ├── agents/                          ← Copilot agents (same set as .claude/agents/)
-├── skills/                          ← Copilot custom skills (same set as .claude/skills/)
-└── prompts/                         ← Slash-command prompts for scaffolding config/command files
+└── instructions/                    ← Path-scoped instructions for config/command/test files
 ```
 
 ---
@@ -198,7 +198,7 @@ Hooks in `.claude/hooks/` enforce these automatically on every file write.
 
 ## Adapting This Boilerplate for Your Application
 
-1. **Remove example modules** — delete `saucedemo/` and `example/` after studying them
+1. **Remove the example module** — delete `saucedemo/` after studying it
 2. **Update `cypress.env.json`** — set `baseUrl`, `username`, `password`, `authUrl` for your app
 3. **Adapt `cy.ensureAuthenticated()`** in `cypress/support/commands/common/auth.commands.js`
 4. **Add your modules** using the checklist:

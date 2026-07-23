@@ -111,7 +111,7 @@ If `CYPRESS_RECORD_KEY` is set, results are also recorded to Cypress Cloud for:
 
 ## Adding a New Environment
 
-1. Create the environment config: `cypress/config/cypress.env.[name].json`
+1. Create the environment config: `cypress/environments/cypress.env.[name].json`
 2. Add a GitHub Environment: Settings → Environments → New environment
 3. Add secrets to the new environment
 4. Add the environment name to the `workflow_dispatch` options in `cypress.yml`
@@ -140,27 +140,22 @@ Steps:
 
 ## Adapting to AWS CodeBuild
 
-The GitHub Actions setup above covers most teams. If your infrastructure is AWS-based, the FHF reference project has a production-grade `buildspec.yml` with:
+The GitHub Actions setup above covers most teams. If your infrastructure is AWS-based, translate the same steps into a `buildspec.yml`:
 
-- Branch → environment mapping (`dev`/`qa`/`staging`/`main` → `dev`/`qa`/`prod`)
-- AWS Secrets Manager credential loading (no GitHub Secrets needed)
-- Parallel Cypress Cloud execution with configurable worker count per instance size
-- JUnit XML merging across parallel workers before TestRail upload
-- TestRail integration via `trcli`
-- Mochawesome report merging across parallel workers
-- Email notification via `sendMail.js`
+- Branch → environment mapping (e.g. `dev`/`qa`/`staging`/`main` → `dev`/`qa`/`prod`)
+- AWS Secrets Manager credential loading instead of GitHub Secrets
+- Parallel Cypress Cloud execution if your suite grows large enough to need it
+- Report merging (Mochawesome/JUnit) across parallel workers if you split by module
 
 Key differences from the GitHub Actions setup:
 
-| Concern | GitHub Actions | AWS CodeBuild (FHF pattern) |
-| ------- | -------------- | --------------------------- |
-| Secrets | GitHub Secrets per environment | AWS Secrets Manager (`{env}/front-end-automation`) |
-| Parallelism | Matrix strategy (separate runners) | Single instance, N worker processes via `run-parallel.sh` |
-| Test results | HTML report artifact | TestRail upload + Mochawesome merge |
-| Notifications | GitHub PR status | Email via `sendMail.js` |
+| Concern | GitHub Actions | AWS CodeBuild |
+| ------- | -------------- | -------------- |
+| Secrets | GitHub Secrets per environment | AWS Secrets Manager |
+| Parallelism | Matrix strategy (separate runners) | Single instance, N worker processes |
+| Test results | HTML report artifact | Upload to your reporting tool of choice |
+| Notifications | GitHub PR status | Whatever your pipeline already uses |
 | Trigger | GitHub webhook | CodeBuild webhook or manual |
-
-To use the CodeBuild pattern: copy `buildspec.yml` from the FHF project and adapt the `PROJECT_DIR` and `SECRET_ID` values to your repo structure.
 
 ---
 

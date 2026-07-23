@@ -23,4 +23,4 @@
 
 ## Details
 
-For full standards, examples, and folder strategy, refer to `/docs/framework-standards.md`.
+For full standards, examples, and folder strategy, refer to `/docs/reference/framework-standards.md`.

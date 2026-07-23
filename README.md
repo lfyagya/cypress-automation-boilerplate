@@ -24,7 +24,7 @@
 
 A Cypress framework boilerplate with a strict three-layer architecture, AI tooling (Claude Code + GitHub Copilot) wired in from day one, and a set of non-negotiable rules that prevent the most common test automation mistakes — hardcoded selectors, timing hacks, duplicated logic, and unmaintainable specs.
 
-Fork it. Remove the example modules. Add your own. Ship.
+Fork it. Remove the example module. Add your own. Ship.
 
 ```mermaid
 flowchart LR
@@ -71,10 +71,10 @@ flowchart TD
     START(["Fork or Clone"])
     START --> INSTALL["npm install"]
     INSTALL --> ENV["Configure cypress.env.json\nbaseUrl · username · password · authUrl"]
-    ENV --> STUDY["Study reference modules\nexample/  ·  saucedemo/"]
+    ENV --> STUDY["Study the reference module\nsaucedemo/"]
     STUDY --> UNDERSTAND{"Understand the\n3-layer pattern?"}
     UNDERSTAND -- "No — re-read docs" --> STUDY
-    UNDERSTAND -- Yes --> ADAPT["Remove example/ and saucedemo/\nAdapt cy.ensureAuthenticated()\nfor your auth flow"]
+    UNDERSTAND -- Yes --> ADAPT["Remove saucedemo/\nAdapt cy.ensureAuthenticated()\nfor your auth flow"]
 
     ADAPT --> DUPECHECK["Search configs/ and commands/\nbefore writing anything new (auto-reminded by the duplication-guard hook)"]
 
@@ -140,7 +140,7 @@ Run the `saucedemo/` smoke tests. If they pass, your setup is correct.
 
 Edit `cypress/support/commands/common/auth.commands.js` — replace the example auth flow with your app's mechanism (Okta, OAuth, basic auth, session token).
 
-Delete `cypress/tests/example/` and `cypress/tests/saucedemo/` once you have studied the pattern.
+Delete `cypress/tests/saucedemo/` (and the matching `configs/`/`support/commands/modules/` files) once you have studied the pattern.
 
 > Full walkthrough: [docs/onboarding/getting-started.md](docs/onboarding/getting-started.md)
 

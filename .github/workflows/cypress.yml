@@ -11,10 +11,10 @@ name: Cypress Tests
 #   merge to main → configFile=qa    (smoke + e2e)
 #   manual        → configFile=<selected>
 #
-# Adapting to AWS CodeBuild:
-#   See buildspec.yml in the FHF reference project for parallel Cypress Cloud
-#   execution, AWS Secrets Manager credential loading, TestRail upload,
-#   and Mochawesome report merging across parallel workers.
+# Adapting to another CI provider (CodeBuild, CircleCI, Jenkins, etc.):
+#   Mirror the same steps — install, write cypress.env.json from secrets, run
+#   the npm script, upload artifacts on failure. Add parallel execution,
+#   Cypress Cloud recording, or report merging as your suite grows.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -82,7 +82,7 @@ jobs:
         with:
           command: npm run cy:run:smoke
         env:
-          CYPRESS_CONFIG_FILE: ${{ github.event.inputs.environment || (github.event_name == 'push' && 'qa') || 'dev' }}
+          CYPRESS_configFile: ${{ github.event.inputs.environment || (github.event_name == 'push' && 'qa') || 'dev' }}
 
       - name: Upload artifacts on failure
         if: failure()
@@ -149,7 +149,7 @@ jobs:
         with:
           command: npx cypress run --spec "cypress/tests/**/${{ matrix.module }}/**/*.cy.js"
         env:
-          CYPRESS_CONFIG_FILE: ${{ github.event.inputs.environment || 'qa' }}
+          CYPRESS_configFile: ${{ github.event.inputs.environment || 'qa' }}
           # Uncomment to enable Cypress Cloud recording:
           # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
